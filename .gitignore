@@ -1,0 +1,22 @@
+*.iml
+.gradle/
+/build/
+!/build.gradle.kts
+*/build/
+.kotlin/
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+xcuserdata/
+Pods/
+*.jks
+*.keystore
+
+# Android Studio / IntelliJ IDEA
+.idea/caches/
+.idea/workspace.xml
+.idea/shelf/
+.idea/assetWizardSettings.xml
+.idea/deploymentTargetSelector.xml

@@ -1,0 +1,281 @@
+# ==================================================================================================
+# Version References
+# ==================================================================================================
+[versions]
+
+# Android
+androidGradlePlugin = "9.3.1"
+androidxBiometric = "1.1.0"
+androidxExifInterface = "1.4.0"
+androidxCamera = "1.5.3"
+activityCompose = "1.12.3"
+androidxComposeBom = "2026.07.00"
+
+# Compose
+compose = "1.12.0-beta03"
+composeMaterial3 = "1.12.0-alpha03"
+coilCompose = "3.5.0"
+crypto = "0.2.0"
+imageLoader = "1.10.0"
+faceDetection = "16.1.7"
+jetbrainsNavigation = "2.9.1"
+materialIconsCore = "1.7.3"
+okio = "3.16.4"
+transcoderAndroid = "0.11.2"
+viewModel = "2.9.6"
+kmpDateTimePicker = "1.1.1"
+
+# Kotlin
+kotlin = "2.4.10"
+kotlinxCoroutines = "1.11.0"
+kotlinxSerialization = "1.11.0"
+kotlinxIoCore = "0.8.2"
+kotlinxImmutable = "0.4.0"
+kotlinxDatetime = "0.7.1"
+completeKotlinPlugin = "1.1.0"
+
+# Koin
+koin = "4.1.1"
+koinCompose = "4.1.1"
+
+# Ktor
+ktor = "3.4.0"
+
+# Chucker
+chucker = "4.3.0"
+
+# Testing
+kotestDataTest = "5.9.1"
+kotest = "6.1.3"
+kotestPlugin = "6.1.3"
+mockK = "1.14.9"
+mockito = "6.2.3"
+turbine = "1.2.1"
+
+# Firebase
+firebaseBom = "34.9.0"
+googleServices = "4.4.4"
+
+# ML Kit
+mlkitTextRecognition = "16.0.1"
+mlkitBarcodeScanning = "17.3.0"
+
+# Other
+kermitVersion = "2.0.8"
+materialVersion = "1.13.0"
+qroseOned = "1.1.1"
+okHttp = "5.3.2"
+cameraRecorder = "0.1.5"
+ksp = "2.3.10"
+ossLicensesPlugin = "0.10.10"
+kover = "0.9.9"
+playServiceAuth = "21.5.0"
+playServiceAuthPhone = "18.3.0"
+dexguard = "+"
+concurrentCollections = "2.1.0"
+koalaplotCore = "0.11.0"
+sqlDelight = "2.0.2"
+coreKtx = "1.17.0"
+googleServicesVersion = "4.4.4"
+androidX = "1.1.0-alpha03"
+detekt = "2.0.0-alpha.6"
+composeRulesDetekt = "0.0.26"
+bouncycastle = "1.83"
+appMetrica = "8.0.0"
+appMetricaPlugin = "1.3.0"
+
+# java
+javaPoet = "1.13.0"
+
+# ==================================================================================================
+# Libraries
+# ==================================================================================================
+[libraries]
+
+# Google
+face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
+google-services = { module = "com.google.gms:google-services", version.ref = "googleServicesVersion" }
+kmp-date-time-picker = { module = "network.chaintech:kmp-date-time-picker", version.ref = "kmpDateTimePicker" }
+kspGradle = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+material = { module = "com.google.android.material:material", version.ref = "materialVersion" }
+playServicesAuth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServiceAuth" }
+playServicesAuthPhone = { group = "com.google.android.gms", name = "play-services-auth-api-phone", version.ref = "playServiceAuthPhone" }
+
+# Android
+androidGradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+androidGradleApi = { group = "com.android.tools.build", name = "gradle-api", version.ref = "androidGradlePlugin" }
+ossLicensesPlugin = { group = "com.google.android.gms", name = "oss-licenses-plugin", version.ref = "ossLicensesPlugin" }
+androidxBiometric = { group = "androidx.biometric", name = "biometric", version.ref = "androidxBiometric" }
+androidxExifInterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "androidxExifInterface" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidxActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidxComposeBom = { module = "androidx.compose:compose-bom-alpha", version.ref = "androidxComposeBom" }
+androidxComposeUi = { module = "androidx.compose.ui:ui" }
+androidxComposeUiGraphics = { module = "androidx.compose.ui:ui-graphics" }
+androidxComposeMaterial3 = { module = "androidx.compose.material3:material3" }
+
+# kotlin
+kotlinGradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinxSerializationGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+koverPlugin = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
+completeKotlinPlugin = { module = "com.louiscad.complete-kotlin:plugin", version.ref = "completeKotlinPlugin" }
+kotlinxIoCore = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIoCore" }
+kotlinxCoroutinesCore = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinxCoroutinesAndroid = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
+kotlinSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+concurrentCollections = { module = "co.touchlab:stately-concurrent-collections", version.ref = "concurrentCollections" }
+kotlinxCollectionsImmutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxImmutable" }
+
+# Compose
+composeGradlePlugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose" }
+composeRuntime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
+composeFoundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
+composeMaterial = { module = "org.jetbrains.compose.material:material", version.ref = "compose" }
+composeMaterial3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
+composeResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
+composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
+composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref = "compose" }
+materialIconsCore = { module = "org.jetbrains.compose.material:material-icons-core", version.ref = "materialIconsCore" }
+composeCompilerGradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
+androidX = { group = "org.jetbrains.androidx.core", name = "core-bundle", version.ref = "androidX" }
+jetbrainViewModel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "viewModel" }
+jetbrainsNavigationCompose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "jetbrainsNavigation" }
+jetbrainsLifecycleRuntimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "viewModel" }
+
+# mlkit
+mlkitTextRecognition = { group = "com.google.mlkit", name = "text-recognition", version.ref = "mlkitTextRecognition" }
+mlkitBarcodeScanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkitBarcodeScanning" }
+
+# koin
+koinAndroid = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koinCore = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koinTest = { module = "io.insert-koin:koin-test", version.ref = "koin" }
+koinCompose = { module = "io.insert-koin:koin-compose", version.ref = "koinCompose" }
+koinComposeVM = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koinCompose" }
+
+# Ktor
+ktorClientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktorClientLogging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktorClientOkHttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktorClientAndroid = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+ktorClientDarwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktorKotlinxSerialization = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktorKotlinxClientAuth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktorClientContentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktorClientJs = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
+ktorClientMock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+okHttpCore = { module = "com.squareup.okhttp3:okhttp", version.ref = "okHttp" }
+
+# Camera
+cameraCore = { group = "androidx.camera", name = "camera-core", version.ref = "androidxCamera" }
+cameraCamera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "androidxCamera" }
+cameraLifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "androidxCamera" }
+cameraVideo = { group = "androidx.camera", name = "camera-video", version.ref = "androidxCamera" }
+cameraView = { group = "androidx.camera", name = "camera-view", version.ref = "androidxCamera" }
+cameraRecorder = { module = "com.github.MasayukiSuda:CameraRecorder-android", version.ref = "cameraRecorder" }
+
+# Qr & Barcode generator
+qroseOnedBarcode = { module = "io.github.alexzhirkevich:qrose-oned", version.ref = "qroseOned" }
+qroseOnedQr = { module = "io.github.alexzhirkevich:qrose", version.ref = "qroseOned" }
+
+# Firebase
+firebaseBom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebaseMessaging = { group = "com.google.firebase", name = "firebase-messaging" }
+
+# Coil image loader
+coilCompose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+coilNetworkKtor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
+imageLoader = { module = "io.github.qdsfdhvh:image-loader", version.ref = "imageLoader" }
+
+
+# Database
+web-worker-driver = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqlDelight" }
+sql-delight-native-driver = { module = "app.cash.sqldelight:native-driver", version.ref = "sqlDelight" }
+sql-delight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqlDelight" }
+android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqlDelight" }
+
+#detekt
+detektApi = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
+detektTest = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
+detektTestUtils = { module = "dev.detekt:detekt-test-utils", version.ref = "detekt" }
+detekt-gradlePlugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+detektKtlintWrapper = { module = "dev.detekt:detekt-rules-ktlint-wrapper", version.ref = "detekt" }
+twitterComposeRulesDetekt = { module = "com.twitter.compose.rules:detekt", version.ref = "composeRulesDetekt" }
+
+# Logger
+kermit = { module = "co.touchlab:kermit", version.ref = "kermitVersion" }
+
+# chucker
+chucker-debug = { group = "com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
+chucker-release = { group = "com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
+
+# video compressor
+transcoder = { module = "io.deepmedia.community:transcoder-android", version.ref = "transcoderAndroid" }
+
+# Testing
+kotestAssertionsCore = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotestFrameworkEngine = { group = "io.kotest", name = "kotest-framework-engine", version.ref = "kotest" }
+kotestFrameworkDatatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotestDataTest" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotestKoin = { module = "io.kotest:kotest-extensions-koin", version.ref = "kotest" }
+mockkLibrary = { module = "io.mockk:mockk", version.ref = "mockK" }
+mockitoLibraryKotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito" }
+kotlinCoroutineTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+turbineTest = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+
+# More
+javaPoet = { module = "com.squareup:javapoet", version.ref = "javaPoet" }
+crypto = { module = "com.diglol.crypto:crypto", version.ref = "crypto" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+
+#diagram
+koalaplotCore = { module = "io.github.koalaplot:koalaplot-core", version.ref = "koalaplotCore" }
+
+#crypto
+bouncycastleProv = { module = "org.bouncycastle:bcprov-jdk15to18", version.ref = "bouncycastle" }
+bouncycastlePkix = { module = "org.bouncycastle:bcpkix-jdk15to18", version.ref = "bouncycastle" }
+
+#crashlytic
+appMetricaLibrary = { group = "io.appmetrica.analytics", name = "analytics", version.ref = "appMetrica" }
+
+# ==================================================================================================
+# Plugins
+# ==================================================================================================
+[plugins]
+
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+androidGradlePlugin = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+androidGradleLibraryPlugin = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kspGradlePlugin = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlinxKover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
+appMetrikaPlugin = { id = "io.appmetrica.analytics", version.ref = "appMetricaPlugin" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
+dexguard = { id = "com.guardsquare.dexguard", version.ref = "dexguard" }
+kotest = { id = "io.kotest", version.ref = "kotestPlugin" }
+androidLint = { id = "com.android.lint", version.ref = "androidGradlePlugin" }
+
+# ==================================================================================================
+# Bundles
+# ==================================================================================================
+[bundles]
+
+camera = ["cameraCore", "cameraCamera2", "cameraLifecycle", "cameraVideo", "cameraView"]
+
+ktorCommon = [
+    "ktorClientCore",
+    "ktorClientLogging",
+    "ktorKotlinxSerialization",
+    "ktorKotlinxClientAuth",
+    "ktorClientContentNegotiation",
+    "ktorClientMock"
+]

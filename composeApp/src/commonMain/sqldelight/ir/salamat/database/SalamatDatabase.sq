@@ -1,0 +1,114 @@
+CREATE TABLE profile (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    birth_date TEXT NOT NULL,
+    gender TEXT NOT NULL,
+    type TEXT NOT NULL,
+    avatar_color INTEGER NOT NULL,
+    created_at INTEGER NOT NULL
+);
+
+selectAllProfiles:
+SELECT * FROM profile ORDER BY created_at ASC;
+
+selectProfileById:
+SELECT * FROM profile WHERE id = ?;
+
+insertProfile:
+INSERT OR REPLACE INTO profile(id, name, birth_date, gender, type, avatar_color, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+deleteProfile:
+DELETE FROM profile WHERE id = ?;
+
+
+CREATE TABLE vaccine_record (
+    id TEXT PRIMARY KEY NOT NULL,
+    profile_id TEXT NOT NULL,
+    vaccine_code TEXT NOT NULL,
+    target_age_months INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    administered_date TEXT,
+    notes TEXT,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY(profile_id) REFERENCES profile(id) ON DELETE CASCADE
+);
+
+selectVaccinesForProfile:
+SELECT * FROM vaccine_record WHERE profile_id = ? ORDER BY target_age_months ASC;
+
+selectVaccinesByStatus:
+SELECT * FROM vaccine_record WHERE profile_id = ? AND status = ? ORDER BY target_age_months ASC;
+
+insertVaccineRecord:
+INSERT OR REPLACE INTO vaccine_record(id, profile_id, vaccine_code, target_age_months, status, administered_date, notes, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+updateVaccineStatus:
+UPDATE vaccine_record
+SET status = ?, administered_date = ?, notes = ?
+WHERE id = ?;
+
+deleteVaccinesForProfile:
+DELETE FROM vaccine_record WHERE profile_id = ?;
+
+
+CREATE TABLE growth_record (
+    id TEXT PRIMARY KEY NOT NULL,
+    profile_id TEXT NOT NULL,
+    date TEXT NOT NULL,
+    weight_kg REAL NOT NULL,
+    height_cm REAL NOT NULL,
+    head_circumference_cm REAL,
+    bmi REAL NOT NULL,
+    notes TEXT,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY(profile_id) REFERENCES profile(id) ON DELETE CASCADE
+);
+
+selectGrowthRecordsForProfile:
+SELECT * FROM growth_record WHERE profile_id = ? ORDER BY date DESC;
+
+selectLatestGrowthRecord:
+SELECT * FROM growth_record WHERE profile_id = ? ORDER BY date DESC LIMIT 1;
+
+insertGrowthRecord:
+INSERT OR REPLACE INTO growth_record(id, profile_id, date, weight_kg, height_cm, head_circumference_cm, bmi, notes, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteGrowthRecord:
+DELETE FROM growth_record WHERE id = ?;
+
+deleteGrowthRecordsForProfile:
+DELETE FROM growth_record WHERE profile_id = ?;
+
+
+CREATE TABLE checkup_reminder (
+    id TEXT PRIMARY KEY NOT NULL,
+    profile_id TEXT NOT NULL,
+    title_key TEXT NOT NULL,
+    interval_months INTEGER NOT NULL,
+    last_completed_date TEXT,
+    next_due_date TEXT NOT NULL,
+    notes TEXT,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY(profile_id) REFERENCES profile(id) ON DELETE CASCADE
+);
+
+selectCheckupsForProfile:
+SELECT * FROM checkup_reminder WHERE profile_id = ? ORDER BY next_due_date ASC;
+
+insertCheckupReminder:
+INSERT OR REPLACE INTO checkup_reminder(id, profile_id, title_key, interval_months, last_completed_date, next_due_date, notes, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+updateCheckupCompletion:
+UPDATE checkup_reminder
+SET last_completed_date = ?, next_due_date = ?, notes = ?
+WHERE id = ?;
+
+deleteCheckupReminder:
+DELETE FROM checkup_reminder WHERE id = ?;
+
+deleteCheckupsForProfile:
+DELETE FROM checkup_reminder WHERE profile_id = ?;
