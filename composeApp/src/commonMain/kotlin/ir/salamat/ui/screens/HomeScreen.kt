@@ -47,6 +47,7 @@ fun HomeScreen(
     onNavigateToFamily: () -> Unit,
     onNavigateToQuickTools: () -> Unit,
     onNavigateToAddProfile: () -> Unit,
+    onNavigateToMemberDetail: ((String) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val activeProfile = state.activeProfile
@@ -63,7 +64,9 @@ fun HomeScreen(
                 ActiveProfileHeroCard(
                     profile = activeProfile,
                     isPersian = state.isPersian,
-                    onClick = onNavigateToFamily
+                    onClick = {
+                        onNavigateToMemberDetail?.invoke(activeProfile.id) ?: onNavigateToFamily()
+                    }
                 )
             } else {
                 EmptyProfileHeroCard(
@@ -92,7 +95,13 @@ fun HomeScreen(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.weight(1f),
-                    onClick = onNavigateToQuickTools
+                    onClick = {
+                        if (activeProfile != null) {
+                            onNavigateToMemberDetail?.invoke(activeProfile.id) ?: onNavigateToQuickTools()
+                        } else {
+                            onNavigateToQuickTools()
+                        }
+                    }
                 )
                 QuickActionCard(
                     title = if (state.isPersian) "پایش رشد" else "Growth Tracker",
@@ -101,7 +110,13 @@ fun HomeScreen(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.weight(1f),
-                    onClick = onNavigateToQuickTools
+                    onClick = {
+                        if (activeProfile != null) {
+                            onNavigateToMemberDetail?.invoke(activeProfile.id) ?: onNavigateToQuickTools()
+                        } else {
+                            onNavigateToQuickTools()
+                        }
+                    }
                 )
             }
         }

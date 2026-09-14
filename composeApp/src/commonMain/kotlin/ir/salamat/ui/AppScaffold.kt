@@ -45,6 +45,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import ir.salamat.navigation.BottomNavItem
 import ir.salamat.navigation.Route
 import ir.salamat.ui.screens.AddProfileScreen
@@ -53,6 +54,7 @@ import ir.salamat.ui.screens.HomeScreen
 import ir.salamat.ui.screens.OnboardingScreen
 import ir.salamat.ui.screens.QuickToolsScreen
 import ir.salamat.ui.screens.SettingsScreen
+import ir.salamat.ui.screens.member.MemberDetailScreen
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -225,6 +227,9 @@ fun AppScaffold(
                     },
                     onNavigateToAddProfile = {
                         navController.navigate(Route.AddProfile)
+                    },
+                    onNavigateToMemberDetail = { profileId ->
+                        navController.navigate(Route.MemberDetail(profileId))
                     }
                 )
             }
@@ -237,6 +242,9 @@ fun AppScaffold(
                     },
                     onNavigateToAddProfile = {
                         navController.navigate(Route.AddProfile)
+                    },
+                    onNavigateToMemberDetail = { profileId ->
+                        navController.navigate(Route.MemberDetail(profileId))
                     }
                 )
             }
@@ -264,6 +272,15 @@ fun AppScaffold(
                             }
                         }
                     }
+                )
+            }
+
+            composable<Route.MemberDetail> { backStackEntry ->
+                val route = backStackEntry.toRoute<Route.MemberDetail>()
+                MemberDetailScreen(
+                    profileId = route.profileId,
+                    isPersian = state.isPersian,
+                    onBack = { navController.popBackStack() }
                 )
             }
         }

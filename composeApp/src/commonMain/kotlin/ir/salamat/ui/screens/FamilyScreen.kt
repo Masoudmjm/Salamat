@@ -47,6 +47,7 @@ fun FamilyScreen(
     state: AppUiState,
     onSelectProfile: (String) -> Unit,
     onNavigateToAddProfile: () -> Unit,
+    onNavigateToMemberDetail: ((String) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -126,7 +127,10 @@ fun FamilyScreen(
                     profile = profile,
                     isActive = isActive,
                     isPersian = state.isPersian,
-                    onClick = { onSelectProfile(profile.id) }
+                    onClick = {
+                        onSelectProfile(profile.id)
+                        onNavigateToMemberDetail?.invoke(profile.id)
+                    }
                 )
             }
         }

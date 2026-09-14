@@ -22,5 +22,6 @@ val appModule: Module = module {
     single<GrowthRepository> { GrowthRepositoryImpl(get()) }
     single<CheckupRepository> { CheckupRepositoryImpl(get()) }
 
-    factory { AppViewModel(get()) }
+    factory { AppViewModel(get(), get()) }
+    factory { (profileId: String) -> ir.salamat.ui.screens.vaccine.VaccineViewModel(profileId, get(), get()) }
 }

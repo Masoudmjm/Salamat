@@ -19,7 +19,8 @@ data class AppUiState(
 )
 
 class AppViewModel(
-    private val profileRepository: ProfileRepository
+    private val profileRepository: ProfileRepository,
+    private val vaccineRepository: ir.salamat.data.repository.VaccineRepository
 ) : ViewModel() {
 
     private val _activeProfileId = MutableStateFlow<String?>(null)
@@ -76,6 +77,9 @@ class AppViewModel(
                 createdAt = now
             )
             profileRepository.saveProfile(profile)
+            if (type == ir.salamat.core.model.ProfileType.CHILD) {
+                vaccineRepository.initializeVaccinesForProfile(id, birthDate, ir.salamat.core.datetime.todayLocalDate())
+            }
             _activeProfileId.value = id
             onSuccess(id)
         }
