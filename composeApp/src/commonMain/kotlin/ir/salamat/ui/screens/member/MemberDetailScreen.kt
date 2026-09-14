@@ -39,14 +39,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.salamat.core.datetime.toJalali
+import ir.salamat.core.model.Gender
+import ir.salamat.core.model.Profile
 import ir.salamat.core.model.ProfileType
+import ir.salamat.core.model.VaccineRecord
+import ir.salamat.core.model.VaccineStatus
+import ir.salamat.core.ui.theme.SalamatTheme
+import ir.salamat.core.vaccine.IranVaccineSchedule
+import ir.salamat.ui.screens.vaccine.VaccineCardUiModel
+import ir.salamat.ui.screens.vaccine.VaccineFilter
 import ir.salamat.ui.screens.vaccine.VaccineRecordDialog
 import ir.salamat.ui.screens.vaccine.VaccineTimelineView
+import ir.salamat.ui.screens.vaccine.VaccineUiMapper
+import ir.salamat.ui.screens.vaccine.VaccineUiState
 import ir.salamat.ui.screens.vaccine.VaccineViewModel
+import kotlinx.datetime.LocalDate
+import androidx.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemberDetailScreen(
     profileId: String,
@@ -56,6 +67,33 @@ fun MemberDetailScreen(
     viewModel: VaccineViewModel = koinViewModel(parameters = { parametersOf(profileId) })
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    MemberDetailContent(
+        state = state,
+        isPersian = isPersian,
+        onBack = onBack,
+        onFilterChange = { viewModel.setFilter(it) },
+        onVaccineClick = { viewModel.openDialog(it) },
+        onDismissDialog = { viewModel.openDialog(null) },
+        onConfirmAdministered = { id, date, notes -> viewModel.markAdministered(id, date, notes) },
+        onMarkPending = { id -> viewModel.markPending(id) },
+        modifier = modifier
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MemberDetailContent(
+    state: VaccineUiState,
+    isPersian: Boolean,
+    onBack: () -> Unit,
+    onFilterChange: (VaccineFilter) -> Unit,
+    onVaccineClick: (VaccineCardUiModel) -> Unit,
+    onDismissDialog: () -> Unit,
+    onConfirmAdministered: (String, LocalDate, String?) -> Unit,
+    onMarkPending: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var selectedTabIndex by remember { mutableStateOf(0) }
 
     val profile = state.profile
@@ -179,8 +217,8 @@ fun MemberDetailScreen(
                     VaccineTimelineView(
                         state = state,
                         isPersian = isPersian,
-                        onFilterChange = { viewModel.setFilter(it) },
-                        onVaccineClick = { viewModel.openDialog(it) }
+                        onFilterChange = onFilterChange,
+                        onVaccineClick = onVaccineClick
                     )
                 }
                 1 -> {
@@ -209,14 +247,64 @@ fun MemberDetailScreen(
             VaccineRecordDialog(
                 vaccine = dialogVaccine,
                 isPersian = isPersian,
-                onDismiss = { viewModel.openDialog(null) },
-                onConfirmAdministered = { id, date, notes ->
-                    viewModel.markAdministered(id, date, notes)
-                },
-                onMarkPending = { id ->
-                    viewModel.markPending(id)
-                }
+                onDismiss = onDismissDialog,
+                onConfirmAdministered = onConfirmAdministered,
+                onMarkPending = onMarkPending
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun MemberDetailPreview() {
+    val sampleChild = Profile(
+        id = "c1",
+        name = "آرتین رضایی",
+        birthDate = LocalDate(2024, 1, 1),
+        gender = Gender.MALE,
+        type = ProfileType.CHILD,
+        avatarColor = 0xFF0A686D.toInt(),
+        createdAt = 0L
+    )
+    val records = IranVaccineSchedule.ALL_VACCINES.mapIndexed { index, def ->
+        VaccineRecord(
+            id = "vr_$index",
+            profileId = "c1",
+            vaccineCode = def.code,
+            targetAgeMonths = def.targetAgeMonths,
+            status = if (def.targetAgeMonths == 0) VaccineStatus.COMPLETED else VaccineStatus.UPCOMING,
+            administeredDate = if (def.targetAgeMonths == 0) LocalDate(2024, 1, 1) else null,
+            notes = null,
+            createdAt = 0L
+        )
+    }
+    val milestones = VaccineUiMapper.mapToMilestones(
+        birthDate = sampleChild.birthDate,
+        records = records,
+        currentDate = LocalDate(2024, 4, 1)
+    )
+    val state = VaccineUiState(
+        profile = sampleChild,
+        milestones = milestones,
+        completedCount = 3,
+        totalCount = records.size,
+        progress = 3f / records.size.toFloat(),
+        selectedFilter = VaccineFilter.ALL,
+        activeDialogVaccine = null,
+        isLoading = false
+    )
+
+    SalamatTheme(isRtl = true) {
+        MemberDetailContent(
+            state = state,
+            isPersian = true,
+            onBack = {},
+            onFilterChange = {},
+            onVaccineClick = {},
+            onDismissDialog = {},
+            onConfirmAdministered = { _, _, _ -> },
+            onMarkPending = {}
+        )
     }
 }

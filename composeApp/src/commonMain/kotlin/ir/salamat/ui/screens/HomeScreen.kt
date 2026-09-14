@@ -37,9 +37,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.salamat.core.datetime.JalaliDate
 import ir.salamat.core.datetime.toJalali
+import ir.salamat.core.model.Gender
 import ir.salamat.core.model.Profile
 import ir.salamat.core.model.ProfileType
+import ir.salamat.core.ui.theme.SalamatTheme
 import ir.salamat.ui.AppUiState
+import kotlinx.datetime.LocalDate
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun HomeScreen(
@@ -318,5 +322,52 @@ private fun QuickActionCard(
                 color = contentColor.copy(alpha = 0.8f)
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun HomeScreenActiveProfilePreview() {
+    val sampleChild = Profile(
+        id = "p1",
+        name = "کیان رستمی",
+        birthDate = LocalDate(2023, 8, 20),
+        gender = Gender.MALE,
+        type = ProfileType.CHILD,
+        avatarColor = 0xFF0A686D.toInt(),
+        createdAt = 0L
+    )
+    SalamatTheme(isRtl = true) {
+        HomeScreen(
+            state = AppUiState(
+                profiles = listOf(sampleChild),
+                activeProfile = sampleChild,
+                isPersian = true,
+                isLoading = false
+            ),
+            onNavigateToFamily = {},
+            onNavigateToQuickTools = {},
+            onNavigateToAddProfile = {},
+            onNavigateToMemberDetail = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun HomeScreenEmptyProfilePreview() {
+    SalamatTheme(isRtl = true) {
+        HomeScreen(
+            state = AppUiState(
+                profiles = emptyList(),
+                activeProfile = null,
+                isPersian = true,
+                isLoading = false
+            ),
+            onNavigateToFamily = {},
+            onNavigateToQuickTools = {},
+            onNavigateToAddProfile = {},
+            onNavigateToMemberDetail = {}
+        )
     }
 }

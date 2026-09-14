@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import ir.salamat.core.ui.theme.SalamatTheme
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun OnboardingScreen(
@@ -183,5 +185,17 @@ private fun FeatureRow(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun OnboardingScreenPreview() {
+    SalamatTheme(isRtl = true) {
+        OnboardingScreen(
+            isPersian = true,
+            onGetStarted = {},
+            onSkip = {}
+        )
     }
 }

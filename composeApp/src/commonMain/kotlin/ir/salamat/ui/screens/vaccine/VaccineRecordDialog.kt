@@ -29,8 +29,12 @@ import androidx.compose.ui.unit.dp
 import ir.salamat.core.datetime.JalaliDate
 import ir.salamat.core.datetime.toLocalDate
 import ir.salamat.core.datetime.todayJalaliDate
+import ir.salamat.core.model.VaccineRecord
 import ir.salamat.core.model.VaccineStatus
+import ir.salamat.core.ui.theme.SalamatTheme
+import ir.salamat.core.vaccine.IranVaccineSchedule
 import kotlinx.datetime.LocalDate
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun VaccineRecordDialog(
@@ -171,4 +175,36 @@ fun VaccineRecordDialog(
             }
         }
     )
+}
+
+@Preview
+@Composable
+private fun VaccineRecordDialogPreview() {
+    val def = IranVaccineSchedule.getByCode("BCG")!!
+    val dummyCard = VaccineCardUiModel(
+        record = VaccineRecord(
+            id = "vr_1",
+            profileId = "p1",
+            vaccineCode = def.code,
+            targetAgeMonths = 0,
+            status = VaccineStatus.DUE,
+            administeredDate = null,
+            notes = null,
+            createdAt = 0L
+        ),
+        definition = def,
+        status = VaccineStatus.DUE,
+        administeredDate = null,
+        administeredJalali = null,
+        notes = null
+    )
+    SalamatTheme(isRtl = true) {
+        VaccineRecordDialog(
+            vaccine = dummyCard,
+            isPersian = true,
+            onDismiss = {},
+            onConfirmAdministered = { _, _, _ -> },
+            onMarkPending = {}
+        )
+    }
 }

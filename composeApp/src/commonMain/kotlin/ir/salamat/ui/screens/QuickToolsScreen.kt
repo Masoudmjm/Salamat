@@ -35,8 +35,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import ir.salamat.core.ui.theme.SalamatTheme
 import ir.salamat.core.vaccine.IranVaccineSchedule
 import ir.salamat.ui.AppUiState
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun QuickToolsScreen(
@@ -253,5 +255,15 @@ private fun VaccineScheduleItem(
                 color = MaterialTheme.colorScheme.primary
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun QuickToolsScreenPreview() {
+    SalamatTheme(isRtl = true) {
+        QuickToolsScreen(
+            state = AppUiState(isPersian = true)
+        )
     }
 }

@@ -38,9 +38,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ir.salamat.core.datetime.JalaliDate
 import ir.salamat.core.datetime.toJalali
+import ir.salamat.core.model.Gender
 import ir.salamat.core.model.Profile
 import ir.salamat.core.model.ProfileType
+import ir.salamat.core.ui.theme.SalamatTheme
 import ir.salamat.ui.AppUiState
+import kotlinx.datetime.LocalDate
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun FamilyScreen(
@@ -215,5 +219,41 @@ private fun ProfileListItemCard(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun FamilyScreenPreview() {
+    val parent = Profile(
+        id = "p1",
+        name = "زهرا اکبری",
+        birthDate = LocalDate(1992, 3, 10),
+        gender = Gender.FEMALE,
+        type = ProfileType.ADULT,
+        avatarColor = 0xFFE76F51.toInt(),
+        createdAt = 0L
+    )
+    val child = Profile(
+        id = "p2",
+        name = "کیان رستمی",
+        birthDate = LocalDate(2023, 8, 20),
+        gender = Gender.MALE,
+        type = ProfileType.CHILD,
+        avatarColor = 0xFF0A686D.toInt(),
+        createdAt = 0L
+    )
+    SalamatTheme(isRtl = true) {
+        FamilyScreen(
+            state = AppUiState(
+                profiles = listOf(parent, child),
+                activeProfile = parent,
+                isPersian = true,
+                isLoading = false
+            ),
+            onSelectProfile = {},
+            onNavigateToAddProfile = {},
+            onNavigateToMemberDetail = {}
+        )
     }
 }

@@ -20,7 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import ir.salamat.core.ui.theme.SalamatTheme
 import ir.salamat.ui.AppUiState
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun SettingsScreen(
@@ -157,5 +159,17 @@ fun SettingsScreen(
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+}
+
+@Preview
+@Composable
+private fun SettingsScreenPreview() {
+    SalamatTheme(isRtl = true) {
+        SettingsScreen(
+            state = AppUiState(isPersian = true),
+            onToggleLanguage = {},
+            onSetLanguage = {}
+        )
     }
 }

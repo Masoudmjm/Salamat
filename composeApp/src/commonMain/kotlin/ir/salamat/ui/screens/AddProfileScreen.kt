@@ -45,7 +45,9 @@ import ir.salamat.core.datetime.JalaliDate
 import ir.salamat.core.datetime.toLocalDate
 import ir.salamat.core.model.Gender
 import ir.salamat.core.model.ProfileType
+import ir.salamat.core.ui.theme.SalamatTheme
 import kotlinx.datetime.LocalDate
+import androidx.compose.ui.tooling.preview.Preview
 
 private val AVATAR_COLORS = listOf(
     0xFF0A686D.toInt(), // Teal
@@ -302,5 +304,17 @@ fun AddProfileScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun AddProfileScreenPreview() {
+    SalamatTheme(isRtl = true) {
+        AddProfileScreen(
+            isPersian = true,
+            onBack = {},
+            onSaveProfile = { _, _, _, _, _ -> }
+        )
     }
 }

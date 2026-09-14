@@ -46,6 +46,7 @@ kotlin {
             implementation(libs.composeFoundation)
             implementation(libs.composeMaterial3)
             implementation(libs.composeResources)
+            implementation(libs.composeUiToolingPreview)
             implementation(libs.materialIconsCore)
 
             implementation(libs.jetbrainsNavigationCompose)
@@ -65,6 +66,7 @@ kotlin {
         }
 
         androidMain.dependencies {
+            implementation(libs.composeUiTooling)
             implementation(libs.koinAndroid)
             implementation(libs.android.driver)
         }

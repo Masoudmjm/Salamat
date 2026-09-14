@@ -37,7 +37,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import ir.salamat.core.model.Gender
+import ir.salamat.core.model.Profile
+import ir.salamat.core.model.ProfileType
+import ir.salamat.core.model.VaccineRecord
 import ir.salamat.core.model.VaccineStatus
+import ir.salamat.core.ui.theme.SalamatTheme
+import ir.salamat.core.vaccine.IranVaccineSchedule
+import kotlinx.datetime.LocalDate
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun VaccineTimelineView(
@@ -348,5 +356,55 @@ private fun VaccineItemRow(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun VaccineTimelinePreview() {
+    val sampleChild = Profile(
+        id = "c1",
+        name = "آرتین رضایی",
+        birthDate = LocalDate(2024, 1, 1),
+        gender = Gender.MALE,
+        type = ProfileType.CHILD,
+        avatarColor = 0xFF0A686D.toInt(),
+        createdAt = 0L
+    )
+    val records = IranVaccineSchedule.ALL_VACCINES.mapIndexed { index, def ->
+        VaccineRecord(
+            id = "vr_$index",
+            profileId = "c1",
+            vaccineCode = def.code,
+            targetAgeMonths = def.targetAgeMonths,
+            status = if (def.targetAgeMonths == 0) VaccineStatus.COMPLETED else VaccineStatus.UPCOMING,
+            administeredDate = if (def.targetAgeMonths == 0) LocalDate(2024, 1, 1) else null,
+            notes = null,
+            createdAt = 0L
+        )
+    }
+    val milestones = VaccineUiMapper.mapToMilestones(
+        birthDate = sampleChild.birthDate,
+        records = records,
+        currentDate = LocalDate(2024, 4, 1)
+    )
+    val state = VaccineUiState(
+        profile = sampleChild,
+        milestones = milestones,
+        completedCount = 3,
+        totalCount = records.size,
+        progress = 3f / records.size.toFloat(),
+        selectedFilter = VaccineFilter.ALL,
+        activeDialogVaccine = null,
+        isLoading = false
+    )
+
+    SalamatTheme(isRtl = true) {
+        VaccineTimelineView(
+            state = state,
+            isPersian = true,
+            onFilterChange = {},
+            onVaccineClick = {}
+        )
     }
 }
