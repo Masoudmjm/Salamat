@@ -1,6 +1,9 @@
 package ir.salamat.core.datetime
 
+import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 /**
  * Pure Kotlin representation of a Solar Hijri (Jalali) date.
@@ -214,3 +217,18 @@ fun JalaliDate.toLocalDate(): LocalDate {
     val gd = gDayNo + 1
     return LocalDate(gy, gm + 1, gd)
 }
+
+/**
+ * Returns current date in local system timezone as Gregorian LocalDate.
+ */
+fun todayLocalDate(): LocalDate {
+    return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+}
+
+/**
+ * Returns current date in local system timezone as JalaliDate.
+ */
+fun todayJalaliDate(): JalaliDate {
+    return todayLocalDate().toJalali()
+}
+

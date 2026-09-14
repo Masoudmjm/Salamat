@@ -46,6 +46,7 @@ kotlin {
             implementation(libs.composeFoundation)
             implementation(libs.composeMaterial3)
             implementation(libs.composeResources)
+            implementation(libs.materialIconsCore)
 
             implementation(libs.jetbrainsNavigationCompose)
             implementation(libs.jetbrainViewModel)

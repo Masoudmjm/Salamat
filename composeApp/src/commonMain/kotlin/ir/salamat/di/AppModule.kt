@@ -10,6 +10,7 @@ import ir.salamat.data.repository.ProfileRepository
 import ir.salamat.data.repository.ProfileRepositoryImpl
 import ir.salamat.data.repository.VaccineRepository
 import ir.salamat.data.repository.VaccineRepositoryImpl
+import ir.salamat.ui.AppViewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -20,4 +21,6 @@ val appModule: Module = module {
     single<VaccineRepository> { VaccineRepositoryImpl(get()) }
     single<GrowthRepository> { GrowthRepositoryImpl(get()) }
     single<CheckupRepository> { CheckupRepositoryImpl(get()) }
+
+    factory { AppViewModel(get()) }
 }
