@@ -17,6 +17,7 @@ import kotlinx.datetime.LocalDate
 
 interface VaccineRepository {
     fun getVaccinesForProfile(profileId: String): Flow<List<VaccineRecord>>
+    fun getAllPendingVaccines(): Flow<List<VaccineRecord>>
     suspend fun initializeVaccinesForProfile(profileId: String, birthDate: LocalDate, currentDate: LocalDate)
     suspend fun updateVaccineRecord(id: String, status: VaccineStatus, administeredDate: LocalDate?, notes: String?)
     suspend fun deleteVaccinesForProfile(profileId: String)
@@ -31,6 +32,29 @@ class VaccineRepositoryImpl(
         val db = databaseProvider.getDatabase()
         emitAll(
             db.salamatDatabaseQueries.selectVaccinesForProfile(profileId)
+                .asFlow()
+                .mapToList(dispatcher)
+                .map { list ->
+                    list.map { entity ->
+                        VaccineRecord(
+                            id = entity.id,
+                            profileId = entity.profile_id,
+                            vaccineCode = entity.vaccine_code,
+                            targetAgeMonths = entity.target_age_months.toInt(),
+                            status = VaccineStatus.valueOf(entity.status),
+                            administeredDate = entity.administered_date?.let { LocalDate.parse(it) },
+                            notes = entity.notes,
+                            createdAt = entity.created_at
+                        )
+                    }
+                }
+        )
+    }
+
+    override fun getAllPendingVaccines(): Flow<List<VaccineRecord>> = flow {
+        val db = databaseProvider.getDatabase()
+        emitAll(
+            db.salamatDatabaseQueries.selectAllPendingVaccines()
                 .asFlow()
                 .mapToList(dispatcher)
                 .map { list ->

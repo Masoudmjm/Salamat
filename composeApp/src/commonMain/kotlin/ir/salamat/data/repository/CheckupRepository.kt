@@ -17,6 +17,8 @@ import kotlinx.datetime.plus
 
 interface CheckupRepository {
     fun getCheckupsForProfile(profileId: String): Flow<List<CheckupReminder>>
+    fun getAllCheckups(): Flow<List<CheckupReminder>>
+    suspend fun initializeStandardCheckupsForProfile(profile: ir.salamat.core.model.Profile, currentDate: LocalDate)
     suspend fun initializeStandardCheckupsForAdult(profileId: String, currentDate: LocalDate)
     suspend fun updateCheckupCompletion(id: String, completedDate: LocalDate, nextDueDate: LocalDate, notes: String?)
     suspend fun addCheckupReminder(reminder: CheckupReminder)
@@ -50,6 +52,51 @@ class CheckupRepositoryImpl(
                     }
                 }
         )
+    }
+
+    override fun getAllCheckups(): Flow<List<CheckupReminder>> = flow {
+        val db = databaseProvider.getDatabase()
+        emitAll(
+            db.salamatDatabaseQueries.selectAllCheckups()
+                .asFlow()
+                .mapToList(dispatcher)
+                .map { list ->
+                    list.map { entity ->
+                        CheckupReminder(
+                            id = entity.id,
+                            profileId = entity.profile_id,
+                            titleKey = entity.title_key,
+                            intervalMonths = entity.interval_months.toInt(),
+                            lastCompletedDate = entity.last_completed_date?.let { LocalDate.parse(it) },
+                            nextDueDate = LocalDate.parse(entity.next_due_date),
+                            notes = entity.notes,
+                            createdAt = entity.created_at
+                        )
+                    }
+                }
+        )
+    }
+
+    override suspend fun initializeStandardCheckupsForProfile(profile: ir.salamat.core.model.Profile, currentDate: LocalDate) {
+        val db = databaseProvider.getDatabase()
+        val now = Clock.System.now().toEpochMilliseconds()
+        val eligibleCheckups = ir.salamat.core.checkup.CheckupCatalog.getEligibleCheckups(profile, currentDate)
+
+        eligibleCheckups.forEachIndexed { index, item ->
+            val id = "${profile.id}_${item.key}"
+            val dueOffsetMonths = minOf(index + 1, item.defaultIntervalMonths)
+            val nextDue = currentDate.plus(dueOffsetMonths, DateTimeUnit.MONTH)
+            db.salamatDatabaseQueries.insertCheckupReminder(
+                id = id,
+                profile_id = profile.id,
+                title_key = item.key,
+                interval_months = item.defaultIntervalMonths.toLong(),
+                last_completed_date = null,
+                next_due_date = nextDue.toString(),
+                notes = null,
+                created_at = now + index
+            )
+        }
     }
 
     override suspend fun initializeStandardCheckupsForAdult(profileId: String, currentDate: LocalDate) {

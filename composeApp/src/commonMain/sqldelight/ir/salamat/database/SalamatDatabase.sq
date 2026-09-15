@@ -52,6 +52,9 @@ WHERE id = ?;
 deleteVaccinesForProfile:
 DELETE FROM vaccine_record WHERE profile_id = ?;
 
+selectAllPendingVaccines:
+SELECT * FROM vaccine_record WHERE status != 'COMPLETED' ORDER BY target_age_months ASC;
+
 
 CREATE TABLE growth_record (
     id TEXT PRIMARY KEY NOT NULL,
@@ -112,3 +115,6 @@ DELETE FROM checkup_reminder WHERE id = ?;
 
 deleteCheckupsForProfile:
 DELETE FROM checkup_reminder WHERE profile_id = ?;
+
+selectAllCheckups:
+SELECT * FROM checkup_reminder ORDER BY next_due_date ASC;
