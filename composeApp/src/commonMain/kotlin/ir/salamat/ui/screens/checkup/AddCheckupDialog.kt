@@ -17,7 +17,15 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import ir.salamat.core.datetime.toPersianDigits
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,7 +33,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -89,11 +99,28 @@ fun AddCheckupDialog(
 
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
-                    label = { Text(if (isPersian) "نام چک‌آپ" else "Checkup Name") },
+                    onValueChange = {
+                        title = it
+                        if (errorMessage != null) errorMessage = null
+                    },
+                    label = { Text(if (isPersian) "نام چک‌آپ یا آزمایش" else "Checkup / Test Name") },
                     placeholder = {
                         Text(if (isPersian) "مثال: سنجش ویتامین D" else "e.g., Vitamin D Level")
                     },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.8f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                    ),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -143,26 +170,51 @@ fun AddCheckupDialog(
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     intervalOptions.forEach { months ->
-                        FilterChip(
-                            selected = selectedIntervalMonths == months,
-                            onClick = {
-                                selectedIntervalMonths = months
-                                val newDue = todayLocalDate().plus(months, DateTimeUnit.MONTH).toJalali()
-                                yearStr = newDue.year.toString()
-                                monthStr = newDue.month.toString()
-                                dayStr = newDue.day.toString()
-                            },
-                            label = {
+                        val isSelected = selectedIntervalMonths == months
+                        Surface(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable {
+                                    selectedIntervalMonths = months
+                                    val newDue = todayLocalDate().plus(months, DateTimeUnit.MONTH).toJalali()
+                                    yearStr = newDue.year.toString()
+                                    monthStr = newDue.month.toString()
+                                    dayStr = newDue.day.toString()
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (isSelected)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                            border = BorderStroke(
+                                1.dp,
+                                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
                                 Text(
-                                    text = if (isPersian) "$months ماهه" else "${months}m",
-                                    style = MaterialTheme.typography.labelSmall
+                                    text = if (isPersian) months.toString().toPersianDigits() else months.toString(),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
                                 )
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
+                                Text(
+                                    text = if (isPersian) "ماهه" else "mo",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -184,6 +236,13 @@ fun AddCheckupDialog(
                         onValueChange = { yearStr = it },
                         label = { Text(if (isPersian) "سال" else "Year") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.8f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1.5f),
                         singleLine = true
                     )
@@ -192,6 +251,13 @@ fun AddCheckupDialog(
                         onValueChange = { monthStr = it },
                         label = { Text(if (isPersian) "ماه" else "Mo") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.8f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
@@ -200,6 +266,13 @@ fun AddCheckupDialog(
                         onValueChange = { dayStr = it },
                         label = { Text(if (isPersian) "روز" else "Day") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.8f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                        ),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
@@ -210,6 +283,13 @@ fun AddCheckupDialog(
                     value = notes,
                     onValueChange = { notes = it },
                     label = { Text(if (isPersian) "توضیحات و یادداشت (اختیاری)" else "Notes (Optional)") },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.8f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                    ),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 2
                 )
