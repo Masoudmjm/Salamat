@@ -38,6 +38,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -68,6 +70,11 @@ fun AppScaffold(
     val currentDestination = navBackStackEntry?.destination
 
     var hasDeterminedStart by remember { mutableStateOf(false) }
+
+    // Refresh notification permission state on every resume from OS settings
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.checkNotificationPermission()
+    }
 
     // First-launch onboarding check
     LaunchedEffect(state.isLoading, state.profiles) {
@@ -257,7 +264,12 @@ fun AppScaffold(
                 SettingsScreen(
                     state = state,
                     onToggleLanguage = { viewModel.toggleLanguage() },
-                    onSetLanguage = { viewModel.setLanguage(it) }
+                    onSetLanguage = { viewModel.setLanguage(it) },
+                    onUpdateNotificationPreferences = { viewModel.updateNotificationPreferences(it) },
+                    onCheckNotificationPermission = { viewModel.checkNotificationPermission() },
+                    onRequestNotificationPermission = { viewModel.requestNotificationPermission() },
+                    onSendTestNotification = { viewModel.sendTestNotification() },
+                    onClearTestNotificationMessage = { viewModel.clearTestNotificationMessage() }
                 )
             }
 
