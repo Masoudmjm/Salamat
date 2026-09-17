@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -293,6 +294,43 @@ class AppViewModel(
             }
             _activeProfileId.value = id
             onSuccess(id)
+        }
+    }
+
+    fun updateProfile(
+        id: String,
+        name: String,
+        birthDate: LocalDate,
+        gender: ir.salamat.core.model.Gender,
+        type: ProfileType,
+        avatarColor: Int,
+        onSuccess: () -> Unit
+    ) {
+        viewModelScope.launch {
+            val existing = profileRepository.getProfileById(id).firstOrNull() ?: return@launch
+            val updated = existing.copy(
+                name = name,
+                birthDate = birthDate,
+                gender = gender,
+                type = type,
+                avatarColor = avatarColor
+            )
+            profileRepository.saveProfile(updated)
+            onSuccess()
+        }
+    }
+
+    fun deleteProfile(
+        profileId: String,
+        onSuccess: () -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            profileRepository.deleteProfile(profileId)
+            if (_activeProfileId.value == profileId) {
+                val remaining = profileRepository.getAllProfiles().firstOrNull()?.filter { it.id != profileId }
+                _activeProfileId.value = remaining?.firstOrNull()?.id
+            }
+            onSuccess()
         }
     }
 }

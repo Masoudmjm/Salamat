@@ -86,6 +86,9 @@ class ProfileRepositoryImpl(
 
     override suspend fun deleteProfile(id: String) {
         val db = databaseProvider.getDatabase()
+        db.salamatDatabaseQueries.deleteVaccinesForProfile(id)
+        db.salamatDatabaseQueries.deleteGrowthRecordsForProfile(id)
+        db.salamatDatabaseQueries.deleteCheckupsForProfile(id)
         db.salamatDatabaseQueries.deleteProfile(id)
     }
 }

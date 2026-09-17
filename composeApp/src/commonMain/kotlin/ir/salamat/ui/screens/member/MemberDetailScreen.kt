@@ -13,8 +13,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -22,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -77,6 +84,8 @@ fun MemberDetailScreen(
     isPersian: Boolean,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToEditProfile: ((String) -> Unit)? = null,
+    onDeleteProfile: ((String) -> Unit)? = null,
     vaccineViewModel: VaccineViewModel = koinViewModel(parameters = { parametersOf(profileId) }),
     growthViewModel: GrowthViewModel = koinViewModel(parameters = { parametersOf(profileId) }),
     checkupViewModel: CheckupViewModel = koinViewModel(parameters = { parametersOf(profileId) })
@@ -113,9 +122,11 @@ fun MemberDetailScreen(
         onConfirmAddCheckup = { title, interval, nextDue, notes ->
             checkupViewModel.addCheckup(title, interval, nextDue, notes)
         },
-        onDeleteCheckup = { id -> checkupViewModel.deleteCheckup(id) },
-        modifier = modifier
-    )
+    onDeleteCheckup = { id -> checkupViewModel.deleteCheckup(id) },
+    onNavigateToEditProfile = onNavigateToEditProfile,
+    onDeleteProfile = onDeleteProfile,
+    modifier = modifier
+)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -143,12 +154,57 @@ fun MemberDetailContent(
     onDismissAddCheckupDialog: () -> Unit,
     onConfirmAddCheckup: (String, Int, LocalDate, String?) -> Unit,
     onDeleteCheckup: (String) -> Unit,
+    onNavigateToEditProfile: ((String) -> Unit)? = null,
+    onDeleteProfile: ((String) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     val profile = vaccineState.profile ?: growthState.profile ?: checkupState.profile
     val isChild = profile?.type == ProfileType.CHILD
+
+    if (showDeleteConfirmation && profile != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    text = if (isPersian) "حذف پرونده سلامت" else "Delete Health Record",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = if (isPersian)
+                        "آیا از حذف پرونده سلامت «${profile.name}» اطمینان دارید؟ تمام سوابق واکسیناسیون، پایش رشد و چک‌آپ‌های این عضو به صورت دائمی حذف خواهند شد."
+                    else
+                        "Are you sure you want to delete '${profile.name}'? All vaccination, growth, and checkup records for this member will be permanently deleted.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val id = profile.id
+                        showDeleteConfirmation = false
+                        onDeleteProfile?.invoke(id)
+                        onBack()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(text = if (isPersian) "حذف پرونده" else "Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmation = false }) {
+                    Text(text = if (isPersian) "انصراف" else "Cancel")
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -163,6 +219,23 @@ fun MemberDetailContent(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    if (profile != null) {
+                        IconButton(onClick = { onNavigateToEditProfile?.invoke(profile.id) }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Profile"
+                            )
+                        }
+                        IconButton(onClick = { showDeleteConfirmation = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete Profile",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             )

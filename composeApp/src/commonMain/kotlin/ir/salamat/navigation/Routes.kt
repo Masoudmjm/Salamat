@@ -23,4 +23,7 @@ sealed interface Route {
 
     @Serializable
     data object AddProfile : Route
+
+    @Serializable
+    data class EditProfile(val profileId: String) : Route
 }

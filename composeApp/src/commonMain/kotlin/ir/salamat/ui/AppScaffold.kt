@@ -252,6 +252,12 @@ fun AppScaffold(
                     },
                     onNavigateToMemberDetail = { profileId ->
                         navController.navigate(Route.MemberDetail(profileId))
+                    },
+                    onNavigateToEditProfile = { profileId ->
+                        navController.navigate(Route.EditProfile(profileId))
+                    },
+                    onDeleteProfile = { profileId ->
+                        viewModel.deleteProfile(profileId)
                     }
                 )
             }
@@ -287,12 +293,39 @@ fun AppScaffold(
                 )
             }
 
+            composable<Route.EditProfile> { backStackEntry ->
+                val editRoute = backStackEntry.toRoute<Route.EditProfile>()
+                val profile = state.profiles.find { it.id == editRoute.profileId }
+                if (profile != null) {
+                    AddProfileScreen(
+                        isPersian = state.isPersian,
+                        initialProfile = profile,
+                        onBack = { navController.popBackStack() },
+                        onSaveProfile = { name, birthDate, gender, type, avatarColor ->
+                            viewModel.updateProfile(profile.id, name, birthDate, gender, type, avatarColor) {
+                                navController.popBackStack()
+                            }
+                        }
+                    )
+                } else {
+                    LaunchedEffect(Unit) {
+                        navController.popBackStack()
+                    }
+                }
+            }
+
             composable<Route.MemberDetail> { backStackEntry ->
                 val route = backStackEntry.toRoute<Route.MemberDetail>()
                 MemberDetailScreen(
                     profileId = route.profileId,
                     isPersian = state.isPersian,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onNavigateToEditProfile = { profileId ->
+                        navController.navigate(Route.EditProfile(profileId))
+                    },
+                    onDeleteProfile = { profileId ->
+                        viewModel.deleteProfile(profileId)
+                    }
                 )
             }
         }

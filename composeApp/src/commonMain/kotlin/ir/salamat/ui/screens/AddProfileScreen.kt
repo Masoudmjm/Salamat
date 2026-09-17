@@ -42,8 +42,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import ir.salamat.core.datetime.JalaliDate
+import ir.salamat.core.datetime.toJalali
 import ir.salamat.core.datetime.toLocalDate
 import ir.salamat.core.model.Gender
+import ir.salamat.core.model.Profile
 import ir.salamat.core.model.ProfileType
 import ir.salamat.core.ui.theme.SalamatTheme
 import kotlinx.datetime.LocalDate
@@ -62,6 +64,7 @@ private val AVATAR_COLORS = listOf(
 @Composable
 fun AddProfileScreen(
     isPersian: Boolean,
+    initialProfile: Profile? = null,
     onBack: () -> Unit,
     onSaveProfile: (
         name: String,
@@ -72,13 +75,16 @@ fun AddProfileScreen(
     ) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var name by remember { mutableStateOf("") }
-    var yearStr by remember { mutableStateOf("1402") }
-    var monthStr by remember { mutableStateOf("1") }
-    var dayStr by remember { mutableStateOf("1") }
-    var selectedGender by remember { mutableStateOf(Gender.MALE) }
-    var selectedType by remember { mutableStateOf(ProfileType.CHILD) }
-    var selectedColor by remember { mutableStateOf(AVATAR_COLORS[0]) }
+    val isEdit = initialProfile != null
+    val initialJalali = initialProfile?.birthDate?.toJalali()
+
+    var name by remember(initialProfile) { mutableStateOf(initialProfile?.name ?: "") }
+    var yearStr by remember(initialProfile) { mutableStateOf(initialJalali?.year?.toString() ?: "1402") }
+    var monthStr by remember(initialProfile) { mutableStateOf(initialJalali?.month?.toString() ?: "1") }
+    var dayStr by remember(initialProfile) { mutableStateOf(initialJalali?.day?.toString() ?: "1") }
+    var selectedGender by remember(initialProfile) { mutableStateOf(initialProfile?.gender ?: Gender.MALE) }
+    var selectedType by remember(initialProfile) { mutableStateOf(initialProfile?.type ?: ProfileType.CHILD) }
+    var selectedColor by remember(initialProfile) { mutableStateOf(initialProfile?.avatarColor ?: AVATAR_COLORS[0]) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
@@ -86,7 +92,11 @@ fun AddProfileScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (isPersian) "ثبت عضو جدید" else "Add New Member",
+                        text = if (isEdit) {
+                            if (isPersian) "ویرایش عضو خانواده" else "Edit Family Member"
+                        } else {
+                            if (isPersian) "ثبت عضو جدید" else "Add New Member"
+                        },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -296,7 +306,11 @@ fun AddProfileScreen(
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(
-                        text = if (isPersian) "ذخیره و ایجاد پرونده" else "Save & Create Profile",
+                        text = if (isEdit) {
+                            if (isPersian) "ثبت تغییرات پرونده" else "Save Changes"
+                        } else {
+                            if (isPersian) "ذخیره و ایجاد پرونده" else "Save & Create Profile"
+                        },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )

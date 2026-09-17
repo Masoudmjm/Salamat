@@ -21,15 +21,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,8 +61,54 @@ fun FamilyScreen(
     onSelectProfile: (String) -> Unit,
     onNavigateToAddProfile: () -> Unit,
     onNavigateToMemberDetail: ((String) -> Unit)? = null,
+    onNavigateToEditProfile: ((String) -> Unit)? = null,
+    onDeleteProfile: ((String) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    var profileToDelete by remember { mutableStateOf<Profile?>(null) }
+
+    if (profileToDelete != null) {
+        val target = profileToDelete!!
+        AlertDialog(
+            onDismissRequest = { profileToDelete = null },
+            shape = RoundedCornerShape(20.dp),
+            title = {
+                Text(
+                    text = if (state.isPersian) "حذف عضو خانواده" else "Delete Family Member",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = if (state.isPersian)
+                        "آیا از حذف پرونده سلامت «${target.name}» اطمینان دارید؟ تمام سوابق واکسیناسیون، پایش رشد و چک‌آپ‌های این عضو به صورت دائمی حذف خواهند شد."
+                    else
+                        "Are you sure you want to delete '${target.name}'? All vaccination, growth, and checkup records for this member will be permanently deleted.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val id = target.id
+                        profileToDelete = null
+                        onDeleteProfile?.invoke(id)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(text = if (state.isPersian) "حذف پرونده" else "Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { profileToDelete = null }) {
+                    Text(text = if (state.isPersian) "انصراف" else "Cancel")
+                }
+            }
+        )
+    }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -134,6 +189,12 @@ fun FamilyScreen(
                     onClick = {
                         onSelectProfile(profile.id)
                         onNavigateToMemberDetail?.invoke(profile.id)
+                    },
+                    onEdit = {
+                        onNavigateToEditProfile?.invoke(profile.id)
+                    },
+                    onDelete = {
+                        profileToDelete = profile
                     }
                 )
             }
@@ -150,7 +211,9 @@ private fun ProfileListItemCard(
     profile: Profile,
     isActive: Boolean,
     isPersian: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -165,12 +228,12 @@ private fun ProfileListItemCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(46.dp)
                     .clip(CircleShape)
                     .background(Color(profile.avatarColor)),
                 contentAlignment = Alignment.Center
@@ -182,7 +245,7 @@ private fun ProfileListItemCard(
                     fontWeight = FontWeight.Bold
                 )
             }
-            Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = profile.name,
@@ -204,17 +267,44 @@ private fun ProfileListItemCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            if (isActive) {
-                Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(28.dp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (isActive) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(26.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.padding(5.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(2.dp))
+                }
+
+                IconButton(
+                    onClick = onEdit,
+                    modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.padding(6.dp)
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
