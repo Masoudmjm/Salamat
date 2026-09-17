@@ -6,6 +6,10 @@ import ir.salamat.core.checkup.CheckupCatalog
 import ir.salamat.core.datetime.todayLocalDate
 import ir.salamat.core.model.Profile
 import ir.salamat.core.model.ProfileType
+import ir.salamat.core.notification.NotificationItem
+import ir.salamat.core.notification.NotificationPreferences
+import ir.salamat.core.notification.NotificationScheduler
+import ir.salamat.core.notification.ReminderSyncEngine
 import ir.salamat.core.vaccine.IranVaccineSchedule
 import ir.salamat.data.repository.CheckupRepository
 import ir.salamat.data.repository.ProfileRepository
@@ -29,28 +33,70 @@ data class AppUiState(
     val overdueCount: Int = 0,
     val dueSoonCount: Int = 0,
     val isPersian: Boolean = true,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val notificationPreferences: NotificationPreferences = NotificationPreferences(),
+    val hasNotificationPermission: Boolean = false,
+    val testNotificationMessage: String? = null
 )
 
 class AppViewModel(
     private val profileRepository: ProfileRepository,
     private val vaccineRepository: VaccineRepository,
-    private val checkupRepository: CheckupRepository
+    private val checkupRepository: CheckupRepository,
+    private val notificationScheduler: NotificationScheduler,
+    private val reminderSyncEngine: ReminderSyncEngine
 ) : ViewModel() {
 
     private val _activeProfileId = MutableStateFlow<String?>(null)
     private val _isPersian = MutableStateFlow(true)
+    private val _notificationPreferences = MutableStateFlow(NotificationPreferences())
+    private val _hasNotificationPermission = MutableStateFlow(false)
+    private val _testNotificationMessage = MutableStateFlow<String?>(null)
+
+    init {
+        checkNotificationPermission()
+    }
+
+    private data class NotificationSettingsState(
+        val preferences: NotificationPreferences,
+        val hasPermission: Boolean,
+        val testMessage: String?
+    )
+
+    private val _notificationSettingsState = combine(
+        _notificationPreferences,
+        _hasNotificationPermission,
+        _testNotificationMessage
+    ) { prefs, hasPermission, testMsg ->
+        NotificationSettingsState(prefs, hasPermission, testMsg)
+    }
 
     val uiState: StateFlow<AppUiState> = combine(
         profileRepository.getAllProfiles(),
         vaccineRepository.getAllPendingVaccines(),
         checkupRepository.getAllCheckups(),
-        _activeProfileId,
-        _isPersian
-    ) { profiles, pendingVaccines, checkups, activeId, isPersian ->
+        combine(_activeProfileId, _isPersian) { id, lang -> Pair(id, lang) },
+        _notificationSettingsState
+    ) { profiles, pendingVaccines, checkups, (activeId, isPersian), notifSettings ->
+        val notificationPreferences = notifSettings.preferences
+        val hasPermission = notifSettings.hasPermission
+        val testMessage = notifSettings.testMessage
+
         val active = profiles.find { it.id == activeId } ?: profiles.firstOrNull()
         val today = todayLocalDate()
         val profileMap = profiles.associateBy { it.id }
+
+        // Sync local notifications with current state
+        viewModelScope.launch {
+            reminderSyncEngine.sync(
+                profiles = profiles,
+                pendingVaccines = pendingVaccines,
+                checkups = checkups,
+                preferences = notificationPreferences,
+                currentDate = today,
+                isPersian = isPersian
+            )
+        }
 
         val vaccineAlerts = mutableListOf<FamilyAlertItem>()
         for (record in pendingVaccines) {
@@ -72,17 +118,17 @@ class AppViewModel(
 
                 vaccineAlerts.add(
                     FamilyAlertItem(
-                        id = "alert_vac_${record.id}",
+                        id = "vaccine_${record.id}",
                         profileId = profile.id,
                         profileName = profile.name,
                         profileAvatarColor = profile.avatarColor,
                         isChild = profile.type == ProfileType.CHILD,
                         title = title,
-                        description = desc,
                         type = AlertType.VACCINE,
                         severity = severity,
                         dueDate = dueDate,
                         daysDifference = diffDays,
+                        description = desc,
                         actionTextFa = actionFa,
                         actionTextEn = actionEn
                     )
@@ -91,35 +137,36 @@ class AppViewModel(
         }
 
         val checkupAlerts = mutableListOf<FamilyAlertItem>()
-        for (reminder in checkups) {
-            val profile = profileMap[reminder.profileId] ?: continue
-            val diffDays = (reminder.nextDueDate.toEpochDays() - today.toEpochDays()).toInt()
+        for (checkup in checkups) {
+            val profile = profileMap[checkup.profileId] ?: continue
+            val dueDate = checkup.nextDueDate
+            val diffDays = (dueDate.toEpochDays() - today.toEpochDays()).toInt()
 
             if (diffDays <= 30) {
                 val severity = if (diffDays < 0) AlertSeverity.OVERDUE else AlertSeverity.DUE_SOON
-                val item = CheckupCatalog.findByKey(reminder.titleKey)
-                val title = if (isPersian) (item?.nameFa ?: reminder.titleKey) else (item?.nameEn ?: reminder.titleKey)
+                val def = CheckupCatalog.findByKey(checkup.titleKey)
+                val title = if (isPersian) (def?.nameFa ?: checkup.titleKey) else (def?.nameEn ?: checkup.titleKey)
                 val desc = when {
-                    diffDays < 0 -> if (isPersian) "${abs(diffDays)} روز تأخیر در مراجعه" else "${abs(diffDays)} days overdue"
-                    diffDays == 0 -> if (isPersian) "موعد مراجعه امروز است" else "Due today"
-                    else -> if (isPersian) "${diffDays} روز تا موعد مراجعه" else "Due in $diffDays days"
+                    diffDays < 0 -> if (isPersian) "${abs(diffDays)} روز تأخیر در پیگیری" else "${abs(diffDays)} days overdue"
+                    diffDays == 0 -> if (isPersian) "موعد پیگیری امروز است" else "Due today"
+                    else -> if (isPersian) "${diffDays} روز تا موعد پیگیری" else "Due in $diffDays days"
                 }
-                val actionFa = "ثبت چک‌آپ"
+                val actionFa = "ثبت انجام چک‌آپ"
                 val actionEn = "Record Checkup"
 
                 checkupAlerts.add(
                     FamilyAlertItem(
-                        id = "alert_chk_${reminder.id}",
+                        id = "checkup_${checkup.id}",
                         profileId = profile.id,
                         profileName = profile.name,
                         profileAvatarColor = profile.avatarColor,
                         isChild = profile.type == ProfileType.CHILD,
                         title = title,
-                        description = desc,
                         type = AlertType.CHECKUP,
                         severity = severity,
-                        dueDate = reminder.nextDueDate,
+                        dueDate = dueDate,
                         daysDifference = diffDays,
+                        description = desc,
                         actionTextFa = actionFa,
                         actionTextEn = actionEn
                     )
@@ -142,7 +189,10 @@ class AppViewModel(
             overdueCount = overdue,
             dueSoonCount = dueSoon,
             isPersian = isPersian,
-            isLoading = false
+            isLoading = false,
+            notificationPreferences = notificationPreferences,
+            hasNotificationPermission = hasPermission,
+            testNotificationMessage = testMessage
         )
     }.stateIn(
         scope = viewModelScope,
@@ -160,6 +210,58 @@ class AppViewModel(
 
     fun setLanguage(isPersian: Boolean) {
         _isPersian.value = isPersian
+    }
+
+    fun checkNotificationPermission() {
+        viewModelScope.launch {
+            _hasNotificationPermission.value = notificationScheduler.hasPermission()
+        }
+    }
+
+    fun requestNotificationPermission() {
+        viewModelScope.launch {
+            val granted = notificationScheduler.requestPermission()
+            _hasNotificationPermission.value = granted
+        }
+    }
+
+    fun updateNotificationPreferences(preferences: NotificationPreferences) {
+        _notificationPreferences.value = preferences
+    }
+
+    fun sendTestNotification() {
+        viewModelScope.launch {
+            val hasPerm = notificationScheduler.hasPermission()
+            _hasNotificationPermission.value = hasPerm
+            val isFa = _isPersian.value
+            if (!hasPerm) {
+                _testNotificationMessage.value = if (isFa)
+                    "⚠️ دسترسی اعلان‌های سیستم غیرفعال است. لطفاً ابتدا در تنظیمات دستگاه دسترسی را فعال کنید."
+                else
+                    "⚠️ System notifications are disabled. Please enable notification permission in device settings first."
+                return@launch
+            }
+            val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
+            val item = NotificationItem(
+                id = "test_$now",
+                title = if (isFa) "سلامت: اعلان آزمایشی یادآور" else "Salamat: Test Reminder",
+                body = if (isFa)
+                    "سیستم یادآورهای واکسن و چک‌آپ خانواده فعال و آماده است."
+                else
+                    "Family health notification system is active and synced.",
+                scheduledEpochMillis = now,
+                profileId = _activeProfileId.value ?: "default"
+            )
+            notificationScheduler.showImmediateNotification(item)
+            _testNotificationMessage.value = if (isFa)
+                "اعلان آزمایشی با موفقیت ارسال شد."
+            else
+                "Test notification sent successfully."
+        }
+    }
+
+    fun clearTestNotificationMessage() {
+        _testNotificationMessage.value = null
     }
 
     fun addProfile(

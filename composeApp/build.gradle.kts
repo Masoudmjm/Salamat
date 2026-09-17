@@ -69,6 +69,7 @@ kotlin {
             implementation(libs.composeUiTooling)
             implementation(libs.koinAndroid)
             implementation(libs.android.driver)
+            implementation(libs.core.ktx)
         }
 
         iosMain.dependencies {

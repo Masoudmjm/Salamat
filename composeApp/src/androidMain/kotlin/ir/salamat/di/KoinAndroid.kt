@@ -2,6 +2,8 @@ package ir.salamat.di
 
 import android.content.Context
 import ir.salamat.core.database.DatabaseDriverFactory
+import ir.salamat.core.notification.AndroidNotificationScheduler
+import ir.salamat.core.notification.NotificationScheduler
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
@@ -13,6 +15,7 @@ fun initKoinAndroid(context: Context) {
             appModule,
             module {
                 single { DatabaseDriverFactory(get()) }
+                single<NotificationScheduler> { AndroidNotificationScheduler(get()) }
             }
         )
     }

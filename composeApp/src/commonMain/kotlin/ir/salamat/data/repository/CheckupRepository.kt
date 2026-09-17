@@ -4,6 +4,7 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import ir.salamat.core.database.DatabaseProvider
 import ir.salamat.core.model.CheckupReminder
+import ir.salamat.core.model.Profile
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +19,7 @@ import kotlinx.datetime.plus
 interface CheckupRepository {
     fun getCheckupsForProfile(profileId: String): Flow<List<CheckupReminder>>
     fun getAllCheckups(): Flow<List<CheckupReminder>>
-    suspend fun initializeStandardCheckupsForProfile(profile: ir.salamat.core.model.Profile, currentDate: LocalDate)
+    suspend fun initializeStandardCheckupsForProfile(profile: Profile, currentDate: LocalDate)
     suspend fun initializeStandardCheckupsForAdult(profileId: String, currentDate: LocalDate)
     suspend fun updateCheckupCompletion(id: String, completedDate: LocalDate, nextDueDate: LocalDate, notes: String?)
     suspend fun addCheckupReminder(reminder: CheckupReminder)
