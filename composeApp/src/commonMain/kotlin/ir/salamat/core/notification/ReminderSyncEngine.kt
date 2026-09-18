@@ -167,7 +167,7 @@ class ReminderSyncEngine(
         if (diffDays == 7 && preferences.notify7DaysBefore) targets.add(7)
         if (diffDays == 1 && preferences.notify1DayBefore) targets.add(1)
         if (diffDays == 0 && preferences.notifyOnDueDate) targets.add(0)
-        if (diffDays < 0 && preferences.notifyWhenOverdue) targets.add(diffDays)
+        if (diffDays == -1 && preferences.notifyWhenOverdue) targets.add(-1)
         return targets
     }
 

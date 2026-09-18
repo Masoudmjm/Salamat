@@ -113,8 +113,8 @@ class ReminderSyncEngineTest {
             notes = null,
             createdAt = 0L
         )
-        // Current date is 5 days past due date (2024-05-06)
-        val currentDate = LocalDate(2024, 5, 6)
+        // Current date is 1 day past due date (2024-05-02)
+        val currentDate = LocalDate(2024, 5, 2)
         val prefs = NotificationPreferences(
             enabled = true,
             notifyWhenOverdue = true
@@ -132,7 +132,84 @@ class ReminderSyncEngineTest {
         assertEquals(1, reminders.size)
         assertTrue(reminders[0].title.contains("تأخیر"))
         assertTrue(reminders[0].body.contains("سنجش فشار خون"))
-        assertTrue(reminders[0].body.contains("۵ روز تأخیر"))
+        assertTrue(reminders[0].body.contains("۱ روز تأخیر"))
+    }
+
+    @Test
+    fun testDoesNotGenerateRemindersForPassedActionsOlderThanOneDay() {
+        val checkup = CheckupReminder(
+            id = "chk_old",
+            profileId = "a1",
+            titleKey = "blood_pressure",
+            intervalMonths = 6,
+            lastCompletedDate = null,
+            nextDueDate = LocalDate(2024, 5, 1),
+            notes = null,
+            createdAt = 0L
+        )
+        // Current date is 5 days past due date (2024-05-06)
+        val currentDate = LocalDate(2024, 5, 6)
+        val prefs = NotificationPreferences(
+            enabled = true,
+            notifyWhenOverdue = true
+        )
+
+        val reminders = engine.generateReminders(
+            profiles = listOf(sampleAdult),
+            pendingVaccines = emptyList(),
+            checkups = listOf(checkup),
+            preferences = prefs,
+            currentDate = currentDate,
+            isPersian = true
+        )
+
+        // Historical passed actions older than 1 day are excluded
+        assertTrue(reminders.isEmpty())
+    }
+
+    @Test
+    fun testOnlyRemindsForCurrentActionAndExcludesPassedActions() {
+        val oldVaccine = VaccineRecord(
+            id = "vac_old",
+            profileId = "c1",
+            vaccineCode = "BCG",
+            targetAgeMonths = 0,
+            status = VaccineStatus.DUE,
+            administeredDate = null,
+            notes = null,
+            createdAt = 0L
+        )
+        val dueTodayVaccine = VaccineRecord(
+            id = "vac_today",
+            profileId = "c1",
+            vaccineCode = "PENTA_3",
+            targetAgeMonths = 6,
+            status = VaccineStatus.DUE,
+            administeredDate = null,
+            notes = null,
+            createdAt = 0L
+        )
+        // Child born 2024-02-01. 6-month vaccine due 2024-08-01.
+        val currentDate = LocalDate(2024, 8, 1)
+        val prefs = NotificationPreferences(
+            enabled = true,
+            notifyOnDueDate = true,
+            notifyWhenOverdue = true
+        )
+
+        val reminders = engine.generateReminders(
+            profiles = listOf(sampleChild),
+            pendingVaccines = listOf(oldVaccine, dueTodayVaccine),
+            checkups = emptyList(),
+            preferences = prefs,
+            currentDate = currentDate,
+            isPersian = true
+        )
+
+        // Only the current action due today is generated, passed actions are excluded!
+        assertEquals(1, reminders.size)
+        assertEquals("vaccine_vac_today_day_0", reminders[0].id)
+        assertTrue(reminders[0].title.contains("امروز"))
     }
 
     @Test

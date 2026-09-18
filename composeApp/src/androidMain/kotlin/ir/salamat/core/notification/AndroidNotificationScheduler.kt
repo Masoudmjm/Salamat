@@ -63,8 +63,7 @@ class AndroidNotificationScheduler(
         val now = System.currentTimeMillis()
 
         if (triggerTime <= now) {
-            // Already due or immediate: show notification directly
-            showImmediateNotification(item)
+            // The scheduled trigger time has already passed; do not trigger retroactively
             return
         }
 
