@@ -50,6 +50,7 @@ import ir.salamat.core.model.Gender
 import ir.salamat.core.model.GrowthRecord
 import ir.salamat.core.model.Profile
 import ir.salamat.core.model.ProfileType
+import ir.salamat.ui.components.ProfileAvatar
 import ir.salamat.core.model.VaccineRecord
 import ir.salamat.core.model.VaccineStatus
 import ir.salamat.core.ui.theme.SalamatTheme
@@ -282,20 +283,12 @@ fun MemberDetailContent(
                     .padding(horizontal = 20.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(54.dp)
-                        .clip(CircleShape)
-                        .background(Color(profile.avatarColor)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = profile.name.take(1),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                ProfileAvatar(
+                    name = profile.name,
+                    avatarColor = profile.avatarColor,
+                    avatarPhoto = profile.avatarPhoto,
+                    size = 54.dp
+                )
 
                 Spacer(modifier = Modifier.width(14.dp))
 

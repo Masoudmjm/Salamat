@@ -123,6 +123,7 @@ class AppViewModel(
                         profileId = profile.id,
                         profileName = profile.name,
                         profileAvatarColor = profile.avatarColor,
+                        profileAvatarPhoto = profile.avatarPhoto,
                         isChild = profile.type == ProfileType.CHILD,
                         title = title,
                         type = AlertType.VACCINE,
@@ -161,6 +162,7 @@ class AppViewModel(
                         profileId = profile.id,
                         profileName = profile.name,
                         profileAvatarColor = profile.avatarColor,
+                        profileAvatarPhoto = profile.avatarPhoto,
                         isChild = profile.type == ProfileType.CHILD,
                         title = title,
                         type = AlertType.CHECKUP,
@@ -271,6 +273,7 @@ class AppViewModel(
         gender: ir.salamat.core.model.Gender,
         type: ProfileType,
         avatarColor: Int,
+        avatarPhoto: String? = null,
         onSuccess: (String) -> Unit
     ) {
         viewModelScope.launch {
@@ -283,6 +286,7 @@ class AppViewModel(
                 gender = gender,
                 type = type,
                 avatarColor = avatarColor,
+                avatarPhoto = avatarPhoto,
                 createdAt = now
             )
             profileRepository.saveProfile(profile)
@@ -304,6 +308,7 @@ class AppViewModel(
         gender: ir.salamat.core.model.Gender,
         type: ProfileType,
         avatarColor: Int,
+        avatarPhoto: String? = null,
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
@@ -313,7 +318,8 @@ class AppViewModel(
                 birthDate = birthDate,
                 gender = gender,
                 type = type,
-                avatarColor = avatarColor
+                avatarColor = avatarColor,
+                avatarPhoto = avatarPhoto
             )
             profileRepository.saveProfile(updated)
             onSuccess()

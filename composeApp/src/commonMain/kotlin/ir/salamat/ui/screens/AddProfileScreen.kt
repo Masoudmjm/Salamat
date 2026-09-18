@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,14 +20,18 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -38,6 +43,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import ir.salamat.core.ui.image.rememberImagePicker
+import ir.salamat.ui.components.ProfileAvatar
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -71,7 +78,8 @@ fun AddProfileScreen(
         birthDate: LocalDate,
         gender: Gender,
         type: ProfileType,
-        avatarColor: Int
+        avatarColor: Int,
+        avatarPhoto: String?
     ) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -85,7 +93,14 @@ fun AddProfileScreen(
     var selectedGender by remember(initialProfile) { mutableStateOf(initialProfile?.gender ?: Gender.MALE) }
     var selectedType by remember(initialProfile) { mutableStateOf(initialProfile?.type ?: ProfileType.CHILD) }
     var selectedColor by remember(initialProfile) { mutableStateOf(initialProfile?.avatarColor ?: AVATAR_COLORS[0]) }
+    var selectedPhoto by remember(initialProfile) { mutableStateOf(initialProfile?.avatarPhoto) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val pickImage = rememberImagePicker { base64 ->
+        if (base64 != null) {
+            selectedPhoto = base64
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -120,6 +135,80 @@ fun AddProfileScreen(
                 .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Photo & Avatar Picker Section
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(contentAlignment = Alignment.BottomEnd) {
+                        ProfileAvatar(
+                            name = name.ifBlank { "؟" },
+                            avatarColor = selectedColor,
+                            avatarPhoto = selectedPhoto,
+                            size = 104.dp,
+                            modifier = Modifier.clickable { pickImage() }
+                        )
+                        Surface(
+                            onClick = { pickImage() },
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            shadowElevation = 3.dp,
+                            modifier = Modifier.size(34.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = if (isPersian) "تغییر تصویر" else "Change Photo",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = { pickImage() },
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(
+                                text = if (selectedPhoto != null) {
+                                    if (isPersian) "تغییر تصویر" else "Change Photo"
+                                } else {
+                                    if (isPersian) "انتخاب تصویر نمایه" else "Pick Profile Photo"
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
+                        if (selectedPhoto != null) {
+                            OutlinedButton(
+                                onClick = { selectedPhoto = null },
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.error
+                                )
+                            ) {
+                                Text(
+                                    text = if (isPersian) "حذف تصویر" else "Remove Photo",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             item {
                 Spacer(modifier = Modifier.height(4.dp))
                 // Name
@@ -297,7 +386,8 @@ fun AddProfileScreen(
                             gregorian,
                             selectedGender,
                             selectedType,
-                            selectedColor
+                            selectedColor,
+                            selectedPhoto
                         )
                     },
                     modifier = Modifier
@@ -328,7 +418,7 @@ private fun AddProfileScreenPreview() {
         AddProfileScreen(
             isPersian = true,
             onBack = {},
-            onSaveProfile = { _, _, _, _, _ -> }
+            onSaveProfile = { _, _, _, _, _, _ -> }
         )
     }
 }

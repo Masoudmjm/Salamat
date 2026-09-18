@@ -5,6 +5,7 @@ CREATE TABLE profile (
     gender TEXT NOT NULL,
     type TEXT NOT NULL,
     avatar_color INTEGER NOT NULL,
+    avatar_photo TEXT,
     created_at INTEGER NOT NULL
 );
 
@@ -15,8 +16,8 @@ selectProfileById:
 SELECT * FROM profile WHERE id = ?;
 
 insertProfile:
-INSERT OR REPLACE INTO profile(id, name, birth_date, gender, type, avatar_color, created_at)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO profile(id, name, birth_date, gender, type, avatar_color, avatar_photo, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteProfile:
 DELETE FROM profile WHERE id = ?;

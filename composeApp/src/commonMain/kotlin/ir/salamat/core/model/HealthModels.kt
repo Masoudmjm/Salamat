@@ -23,6 +23,7 @@ data class Profile(
     val gender: Gender,
     val type: ProfileType,
     val avatarColor: Int,
+    val avatarPhoto: String? = null,
     val createdAt: Long
 )
 

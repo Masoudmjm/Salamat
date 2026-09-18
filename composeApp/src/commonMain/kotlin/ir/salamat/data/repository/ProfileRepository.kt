@@ -42,6 +42,7 @@ class ProfileRepositoryImpl(
                             gender = Gender.valueOf(entity.gender),
                             type = ProfileType.valueOf(entity.type),
                             avatarColor = entity.avatar_color.toInt(),
+                            avatarPhoto = entity.avatar_photo,
                             createdAt = entity.created_at
                         )
                     }
@@ -64,6 +65,7 @@ class ProfileRepositoryImpl(
                             gender = Gender.valueOf(it.gender),
                             type = ProfileType.valueOf(it.type),
                             avatarColor = it.avatar_color.toInt(),
+                            avatarPhoto = it.avatar_photo,
                             createdAt = it.created_at
                         )
                     }
@@ -80,6 +82,7 @@ class ProfileRepositoryImpl(
             gender = profile.gender.name,
             type = profile.type.name,
             avatar_color = profile.avatarColor.toLong(),
+            avatar_photo = profile.avatarPhoto,
             created_at = profile.createdAt
         )
     }

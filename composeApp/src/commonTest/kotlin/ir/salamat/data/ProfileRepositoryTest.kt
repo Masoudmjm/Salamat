@@ -97,6 +97,34 @@ class ProfileRepositoryTest {
     }
 
     @Test
+    fun testSaveAndUpdateProfilePhotoAndRemoval() = runTest {
+        val samplePhotoBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP..."
+        val profileWithPhoto = Profile(
+            id = "p_photo",
+            name = "سارا",
+            birthDate = LocalDate(2000, 5, 1),
+            gender = Gender.FEMALE,
+            type = ProfileType.ADULT,
+            avatarColor = 0xFF00AA55.toInt(),
+            avatarPhoto = samplePhotoBase64,
+            createdAt = 500L
+        )
+
+        // 1. Save with photo
+        profileRepo.saveProfile(profileWithPhoto)
+        val retrieved = profileRepo.getProfileById("p_photo").first()
+        assertNotNull(retrieved)
+        assertEquals(samplePhotoBase64, retrieved.avatarPhoto)
+
+        // 2. Remove photo (set to null)
+        val profileWithoutPhoto = retrieved.copy(avatarPhoto = null)
+        profileRepo.saveProfile(profileWithoutPhoto)
+        val updated = profileRepo.getProfileById("p_photo").first()
+        assertNotNull(updated)
+        assertNull(updated.avatarPhoto)
+    }
+
+    @Test
     fun testCascadingDeletionCleansChildRecords() = runTest {
         val targetProfileId = "user_delete_target"
         val otherProfileId = "user_keep"

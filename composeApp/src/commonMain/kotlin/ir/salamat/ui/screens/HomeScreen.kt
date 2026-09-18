@@ -44,6 +44,7 @@ import ir.salamat.core.model.Profile
 import ir.salamat.core.model.ProfileType
 import ir.salamat.core.ui.theme.SalamatTheme
 import ir.salamat.ui.AppUiState
+import ir.salamat.ui.components.ProfileAvatar
 import ir.salamat.ui.screens.home.AlertSeverity
 import ir.salamat.ui.screens.home.AlertType
 import ir.salamat.ui.screens.home.FamilyAlertItem
@@ -341,20 +342,12 @@ private fun FamilyAlertCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Profile avatar
-            Box(
-                modifier = Modifier
-                    .size(46.dp)
-                    .clip(CircleShape)
-                    .background(Color(alert.profileAvatarColor)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = alert.profileName.take(1),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            ProfileAvatar(
+                name = alert.profileName,
+                avatarColor = alert.profileAvatarColor,
+                avatarPhoto = alert.profileAvatarPhoto,
+                size = 46.dp
+            )
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -429,20 +422,12 @@ private fun ActiveProfileHeroCard(
                 .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(Color(profile.avatarColor)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = profile.name.take(1),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            ProfileAvatar(
+                name = profile.name,
+                avatarColor = profile.avatarColor,
+                avatarPhoto = profile.avatarPhoto,
+                size = 56.dp
+            )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Row(

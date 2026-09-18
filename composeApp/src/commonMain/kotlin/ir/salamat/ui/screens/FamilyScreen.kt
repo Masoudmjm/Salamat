@@ -51,6 +51,7 @@ import ir.salamat.core.model.Gender
 import ir.salamat.core.model.Profile
 import ir.salamat.core.model.ProfileType
 import ir.salamat.core.ui.theme.SalamatTheme
+import ir.salamat.ui.components.ProfileAvatar
 import ir.salamat.ui.AppUiState
 import kotlinx.datetime.LocalDate
 import androidx.compose.ui.tooling.preview.Preview
@@ -231,20 +232,12 @@ private fun ProfileListItemCard(
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(46.dp)
-                    .clip(CircleShape)
-                    .background(Color(profile.avatarColor)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = profile.name.take(1),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            ProfileAvatar(
+                name = profile.name,
+                avatarColor = profile.avatarColor,
+                avatarPhoto = profile.avatarPhoto,
+                size = 46.dp
+            )
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(

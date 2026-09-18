@@ -23,6 +23,7 @@ data class FamilyAlertItem(
     val profileId: String,
     val profileName: String,
     val profileAvatarColor: Int,
+    val profileAvatarPhoto: String? = null,
     val isChild: Boolean,
     val title: String,
     val description: String,

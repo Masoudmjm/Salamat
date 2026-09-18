@@ -50,6 +50,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import ir.salamat.navigation.BottomNavItem
 import ir.salamat.navigation.Route
+import ir.salamat.ui.components.ProfileAvatar
 import ir.salamat.ui.screens.AddProfileScreen
 import ir.salamat.ui.screens.FamilyScreen
 import ir.salamat.ui.screens.HomeScreen
@@ -136,20 +137,12 @@ fun AppScaffold(
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(active.avatarColor)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = active.name.take(1),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
+                                    ProfileAvatar(
+                                        name = active.name,
+                                        avatarColor = active.avatarColor,
+                                        avatarPhoto = active.avatarPhoto,
+                                        size = 24.dp
+                                    )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = active.name,
@@ -283,8 +276,8 @@ fun AppScaffold(
                 AddProfileScreen(
                     isPersian = state.isPersian,
                     onBack = { navController.popBackStack() },
-                    onSaveProfile = { name, birthDate, gender, type, avatarColor ->
-                        viewModel.addProfile(name, birthDate, gender, type, avatarColor) {
+                    onSaveProfile = { name, birthDate, gender, type, avatarColor, avatarPhoto ->
+                        viewModel.addProfile(name, birthDate, gender, type, avatarColor, avatarPhoto) {
                             navController.navigate(Route.Home) {
                                 popUpTo(Route.Home) { inclusive = false }
                             }
@@ -301,8 +294,8 @@ fun AppScaffold(
                         isPersian = state.isPersian,
                         initialProfile = profile,
                         onBack = { navController.popBackStack() },
-                        onSaveProfile = { name, birthDate, gender, type, avatarColor ->
-                            viewModel.updateProfile(profile.id, name, birthDate, gender, type, avatarColor) {
+                        onSaveProfile = { name, birthDate, gender, type, avatarColor, avatarPhoto ->
+                            viewModel.updateProfile(profile.id, name, birthDate, gender, type, avatarColor, avatarPhoto) {
                                 navController.popBackStack()
                             }
                         }
