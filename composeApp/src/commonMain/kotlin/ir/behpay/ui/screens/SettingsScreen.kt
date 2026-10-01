@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import ir.behpay.core.notification.NotificationPreferences
 import ir.behpay.core.ui.theme.BehpayTheme
 import ir.behpay.ui.AppUiState
+import ir.behpay.ui.components.BehpayLogo
 
 @Composable
 fun SettingsScreen(
@@ -380,9 +381,13 @@ fun SettingsScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    BehpayLogo(size = 40.dp, shadowElevation = 2.dp)
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = if (state.isPersian) "به‌پای — نسخه ۱.۰.۰" else "Behpay — v1.0.0",
                         style = MaterialTheme.typography.bodySmall,

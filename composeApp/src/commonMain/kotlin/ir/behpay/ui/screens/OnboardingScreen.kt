@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ir.behpay.core.ui.theme.BehpayTheme
+import ir.behpay.ui.components.BehpayLogo
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -52,20 +52,7 @@ fun OnboardingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(top = 40.dp)
         ) {
-            Surface(
-                modifier = Modifier.size(80.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(44.dp)
-                    )
-                }
-            }
+            BehpayLogo(size = 84.dp)
             Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = if (isPersian) "به‌پای — همیار سلامت خانواده" else "Behpay — Family Health Companion",
