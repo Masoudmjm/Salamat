@@ -7,7 +7,7 @@
 
     <application>
         <receiver
-            android:name="ir.salamat.core.notification.SalamatNotificationReceiver"
+            android:name="ir.behpay.core.notification.BehpayNotificationReceiver"
             android:enabled="true"
             android:exported="false" />
     </application>

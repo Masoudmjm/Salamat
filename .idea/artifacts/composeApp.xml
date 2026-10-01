@@ -2,7 +2,7 @@
   <artifact type="jar" name="composeApp">
     <output-path>$PROJECT_DIR$/composeApp/build/libs</output-path>
     <root id="archive" name="composeApp.jar">
-      <element id="module-output" name="Salamat.composeApp.androidMain" />
+      <element id="module-output" name="Behpay.composeApp.androidMain" />
     </root>
   </artifact>
 </component>

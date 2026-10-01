@@ -11,7 +11,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "ir.salamat.composeApp"
+        namespace = "ir.behpay.composeApp"
         compileSdk = 37
         minSdk = 24
         withJava()
@@ -92,8 +92,8 @@ kotlin {
 
 sqldelight {
     databases {
-        create("SalamatDatabase") {
-            packageName.set("ir.salamat.database")
+        create("BehpayDatabase") {
+            packageName.set("ir.behpay.database")
             generateAsync.set(true)
         }
     }

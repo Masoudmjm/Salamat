@@ -1,6 +1,4 @@
 import com.android.build.api.dsl.ApplicationExtension
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.androidGradlePlugin)
@@ -13,11 +11,11 @@ kotlin {
 }
 
 extensions.configure<ApplicationExtension> {
-    namespace = "ir.salamat.app"
+    namespace = "ir.behpay.app"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "ir.salamat.app"
+        applicationId = "ir.behpay.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

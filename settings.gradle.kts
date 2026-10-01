@@ -1,4 +1,4 @@
-rootProject.name = "Salamat"
+rootProject.name = "Behpay"
 
 pluginManagement {
     repositories {
