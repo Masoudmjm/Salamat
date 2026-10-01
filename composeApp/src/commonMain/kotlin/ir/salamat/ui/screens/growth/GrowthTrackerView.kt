@@ -44,6 +44,7 @@ import ir.salamat.core.model.GrowthRecord
 import ir.salamat.core.model.Profile
 import ir.salamat.core.model.ProfileType
 import ir.salamat.core.ui.theme.SalamatTheme
+import ir.salamat.ui.screens.growth.chart.GrowthChartCard
 import kotlinx.datetime.LocalDate
 
 @Composable
@@ -68,6 +69,19 @@ fun GrowthTrackerView(
                 isPersian = isPersian,
                 onOpenAddDialog = onOpenAddDialog
             )
+        }
+
+        // Growth Trend Chart Card
+        if (state.records.isNotEmpty()) {
+            item {
+                val isChild = state.profile?.type == ProfileType.CHILD
+                GrowthChartCard(
+                    records = state.records,
+                    isChild = isChild,
+                    idealWeightRange = state.idealWeightRange,
+                    isPersian = isPersian
+                )
+            }
         }
 
         // Section Title & Add Action
@@ -429,9 +443,20 @@ private fun GrowthTrackerViewPreview() {
         notes = null,
         createdAt = 0L
     )
+    val r3 = GrowthRecord(
+        id = "r3",
+        profileId = "p1",
+        date = LocalDate(2023, 11, 5),
+        weightKg = 8.6,
+        heightCm = 71.0,
+        headCircumferenceCm = 43.5,
+        bmi = 17.1,
+        notes = "چک‌آپ ۶ ماهگی",
+        createdAt = 0L
+    )
     val state = GrowthUiState(
         profile = sampleProfile,
-        records = listOf(r1, r2),
+        records = listOf(r1, r2, r3),
         latestRecord = r1,
         bmiCategory = BmiCategory.NORMAL,
         idealWeightRange = Pair(12.4, 16.7),

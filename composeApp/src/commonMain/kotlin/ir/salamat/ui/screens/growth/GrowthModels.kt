@@ -90,3 +90,45 @@ data class GrowthUiState(
     val isAddDialogOpen: Boolean = false,
     val isLoading: Boolean = true
 )
+
+enum class GrowthChartMetric {
+    WEIGHT,
+    HEIGHT,
+    HEAD_CIRCUMFERENCE,
+    BMI;
+
+    fun titleFa(): String = when (this) {
+        WEIGHT -> "وزن"
+        HEIGHT -> "قد"
+        HEAD_CIRCUMFERENCE -> "دور سر"
+        BMI -> "BMI"
+    }
+
+    fun titleEn(): String = when (this) {
+        WEIGHT -> "Weight"
+        HEIGHT -> "Height"
+        HEAD_CIRCUMFERENCE -> "Head Circ."
+        BMI -> "BMI"
+    }
+
+    fun unitFa(): String = when (this) {
+        WEIGHT -> "ک.گ"
+        HEIGHT -> "س.م"
+        HEAD_CIRCUMFERENCE -> "س.م"
+        BMI -> ""
+    }
+
+    fun unitEn(): String = when (this) {
+        WEIGHT -> "kg"
+        HEIGHT -> "cm"
+        HEAD_CIRCUMFERENCE -> "cm"
+        BMI -> ""
+    }
+
+    fun icon(): String = when (this) {
+        WEIGHT -> "⚖️"
+        HEIGHT -> "📏"
+        HEAD_CIRCUMFERENCE -> "🧠"
+        BMI -> "📊"
+    }
+}
