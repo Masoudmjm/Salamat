@@ -21,7 +21,8 @@ val SurfaceVariantLight = Color(0xFFF1F5F9)
 val OnBackgroundLight = Color(0xFF0F172A)
 val OnSurfaceLight = Color(0xFF1E293B)
 val OnSurfaceVariantLight = Color(0xFF64748B)
-val OutlineLight = Color(0xFFE2E8F0)
+val OutlineLight = Color(0xFF7B8A99)
+val OutlineVariantLight = Color(0xFFE2E8F0)
 
 // Health Status Badges
 val StatusCompleted = Color(0xFF137333)

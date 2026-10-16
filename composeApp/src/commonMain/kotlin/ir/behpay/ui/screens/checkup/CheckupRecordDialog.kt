@@ -31,6 +31,7 @@ import ir.behpay.core.datetime.toJalali
 import ir.behpay.core.datetime.toLocalDate
 import ir.behpay.core.datetime.todayJalaliDate
 import ir.behpay.core.ui.theme.BehpayTheme
+import ir.behpay.core.ui.theme.behpayTextFieldColors
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
@@ -112,6 +113,8 @@ fun CheckupRecordDialog(
                         onValueChange = { yearStr = it },
                         label = { Text(if (isPersian) "سال" else "Year") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1.5f),
                         singleLine = true
                     )
@@ -120,6 +123,8 @@ fun CheckupRecordDialog(
                         onValueChange = { monthStr = it },
                         label = { Text(if (isPersian) "ماه" else "Mo") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
@@ -128,6 +133,8 @@ fun CheckupRecordDialog(
                         onValueChange = { dayStr = it },
                         label = { Text(if (isPersian) "روز" else "Day") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
@@ -172,6 +179,8 @@ fun CheckupRecordDialog(
                             style = MaterialTheme.typography.bodySmall
                         )
                     },
+                    colors = behpayTextFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3
                 )

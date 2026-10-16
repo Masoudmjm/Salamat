@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ir.behpay.core.datetime.toJalali
+import ir.behpay.core.growth.ChildGrowthStandard
 import ir.behpay.core.model.Gender
 import ir.behpay.core.model.GrowthRecord
 import ir.behpay.core.model.Profile
@@ -107,10 +108,15 @@ fun GrowthTrackerView(
                 }
             }
 
+            val isChild = state.profile?.type == ProfileType.CHILD
+            val gender = state.profile?.gender ?: Gender.MALE
+
             items(state.records, key = { it.id }) { record ->
                 GrowthRecordCard(
                     record = record,
                     isPersian = isPersian,
+                    isChild = isChild,
+                    gender = gender,
                     onDelete = { onDeleteRecord(record.id) }
                 )
             }
@@ -130,111 +136,249 @@ private fun GrowthSummaryCard(
     modifier: Modifier = Modifier
 ) {
     val latest = state.latestRecord
-    val category = state.bmiCategory
+    val isChild = state.profile?.type == ProfileType.CHILD
+    val childEvaluation = state.childEvaluation
+    val adultCategory = state.bmiCategory
 
-    if (latest != null && category != null) {
-        val categoryColor = Color(category.colorHex())
+    if (latest != null && ((isChild && childEvaluation != null) || (!isChild && adultCategory != null))) {
+        if (isChild && childEvaluation != null) {
+            val statusColor = Color(childEvaluation.status.colorHex())
+            Card(
+                modifier = modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(18.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = if (isPersian) "پایش تناسب قد و وزن کودک (کارت واکسیناسیون)" else "Child Growth Proportionality",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = if (isPersian) childEvaluation.status.shortLabelFa() else childEvaluation.status.shortLabelEn(),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = statusColor
+                            )
+                        }
 
-        Card(
-            modifier = modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Column(modifier = Modifier.padding(18.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = statusColor.copy(alpha = 0.14f)
+                        ) {
+                            Text(
+                                text = if (isPersian) "صدک: ~${childEvaluation.percentileEstimate}٪" else "Percentile: ~${childEvaluation.percentileEstimate}%",
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = statusColor
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Metrics Row (Weight, Height, Head Circ)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            .padding(vertical = 10.dp, horizontal = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        MetricColumn(
+                            title = if (isPersian) "وزن" else "Weight",
+                            value = if (isPersian) "${latest.weightKg} ک.گ" else "${latest.weightKg} kg"
+                        )
+                        MetricColumn(
+                            title = if (isPersian) "قد" else "Height",
+                            value = if (isPersian) "${latest.heightCm} س.م" else "${latest.heightCm} cm"
+                        )
+                        if (latest.headCircumferenceCm != null && latest.headCircumferenceCm > 0) {
+                            MetricColumn(
+                                title = if (isPersian) "دور سر" else "Head Circ.",
+                                value = if (isPersian) "${latest.headCircumferenceCm} س.م" else "${latest.headCircumferenceCm} cm"
+                            )
+                        }
+                    }
+
+                    // Standard Healthy Weight Range from Growth Card
+                    val range = childEvaluation.idealWeightRange
+                    if (range.first > 0 && range.second > 0) {
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = if (isPersian) "شاخص توده بدنی (BMI)" else "Body Mass Index (BMI)",
+                            text = if (isPersian)
+                                "محدوده وزن متناسب با این قد در کارت پایش رشد: ${range.first} تا ${range.second} کیلوگرم (میانه استاندارد: ${childEvaluation.medianWeightKg} ک.گ)"
+                            else
+                                "Standard weight range for this height: ${range.first} - ${range.second} kg (Median: ${childEvaluation.medianWeightKg} kg)",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    // Informative notice about BMI not designed for babies
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "ℹ️",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (isPersian)
+                                    "شاخص BMI برای بزرگسالان طراحی شده و برای نوزادان معتبر نیست. تناسب قد و وزن کودک بر اساس منحنی‌های استاندارد کارت واکسیناسیون کشوری ارزیابی می‌شود."
+                                else
+                                    "BMI is not designed for babies. Child proportionality is evaluated using official national vaccination & growth card curves.",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    // Recommendation
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = if (isPersian) childEvaluation.status.recommendationFa() else childEvaluation.status.recommendationEn(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    val jalali = latest.date.toJalali()
+                    Text(
+                        text = if (isPersian)
+                            "آخرین پایش: ${jalali.formatPersian()}"
+                        else
+                            "Last measured: ${latest.date}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+            }
+        } else {
+            // Adult BMI Card
+            val category = adultCategory!!
+            val categoryColor = Color(category.colorHex())
+
+            Card(
+                modifier = modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(18.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = if (isPersian) "شاخص توده بدنی (BMI)" else "Body Mass Index (BMI)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "${latest.bmi}",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = categoryColor
+                            )
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = categoryColor.copy(alpha = 0.14f)
+                        ) {
+                            Text(
+                                text = if (isPersian) category.titleFa() else category.titleEn(),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = categoryColor
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Metrics Row (Weight, Height)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                            .padding(vertical = 10.dp, horizontal = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        MetricColumn(
+                            title = if (isPersian) "وزن" else "Weight",
+                            value = if (isPersian) "${latest.weightKg} ک.گ" else "${latest.weightKg} kg"
+                        )
+                        MetricColumn(
+                            title = if (isPersian) "قد" else "Height",
+                            value = if (isPersian) "${latest.heightCm} س.م" else "${latest.heightCm} cm"
+                        )
+                        if (latest.headCircumferenceCm != null && latest.headCircumferenceCm > 0) {
+                            MetricColumn(
+                                title = if (isPersian) "دور سر" else "Head Circ.",
+                                value = if (isPersian) "${latest.headCircumferenceCm} س.م" else "${latest.headCircumferenceCm} cm"
+                            )
+                        }
+                    }
+
+                    // Ideal Weight Range
+                    val range = state.idealWeightRange
+                    if (range != null && range.first > 0) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = if (isPersian)
+                                "محدوده وزن استاندارد برای این قد: ${range.first} تا ${range.second} کیلوگرم"
+                            else
+                                "Standard weight range for this height: ${range.first} - ${range.second} kg",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "${latest.bmi}",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = categoryColor
-                        )
                     }
 
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = categoryColor.copy(alpha = 0.14f)
-                    ) {
-                        Text(
-                            text = if (isPersian) category.titleFa() else category.titleEn(),
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = categoryColor
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Metrics Row (Weight, Height, Head Circ)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                        .padding(vertical = 10.dp, horizontal = 14.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    MetricColumn(
-                        title = if (isPersian) "وزن" else "Weight",
-                        value = if (isPersian) "${latest.weightKg} ک.گ" else "${latest.weightKg} kg"
+                    // Recommendation
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = if (isPersian) category.recommendationFa() else category.recommendationEn(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
                     )
-                    MetricColumn(
-                        title = if (isPersian) "قد" else "Height",
-                        value = if (isPersian) "${latest.heightCm} س.م" else "${latest.heightCm} cm"
-                    )
-                    if (latest.headCircumferenceCm != null && latest.headCircumferenceCm > 0) {
-                        MetricColumn(
-                            title = if (isPersian) "دور سر" else "Head Circ.",
-                            value = if (isPersian) "${latest.headCircumferenceCm} س.م" else "${latest.headCircumferenceCm} cm"
-                        )
-                    }
-                }
 
-                // Ideal Weight Range
-                val range = state.idealWeightRange
-                if (range != null && range.first > 0) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
+                    val jalali = latest.date.toJalali()
                     Text(
                         text = if (isPersian)
-                            "محدوده وزن استاندارد برای این قد: ${range.first} تا ${range.second} کیلوگرم"
+                            "آخرین پایش: ${jalali.formatPersian()}"
                         else
-                            "Standard weight range for this height: ${range.first} - ${range.second} kg",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                            "Last measured: ${latest.date}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.outline
                     )
                 }
-
-                // Recommendation
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = if (isPersian) category.recommendationFa() else category.recommendationEn(),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f)
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-                val jalali = latest.date.toJalali()
-                Text(
-                    text = if (isPersian)
-                        "آخرین پایش: ${jalali.formatPersian()}"
-                    else
-                        "Last measured: ${latest.date}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
             }
         }
     } else {
@@ -275,10 +419,17 @@ private fun GrowthSummaryCard(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = if (isPersian)
-                        "با ثبت قد و وزن، شاخص توده بدنی (BMI) و محدوده سلامت وزن به طور خودکار محاسبه و نمودار پایش رشد تشکیل می‌شود."
-                    else
-                        "Record height and weight to calculate BMI and track growth trends over time.",
+                    text = if (isPersian) {
+                        if (state.profile?.type == ProfileType.CHILD)
+                            "با ثبت قد و وزن، تناسب رشد کودک بر اساس نمودارهای پایش رشد کارت واکسیناسیون به طور خودکار ارزیابی می‌شود."
+                        else
+                            "با ثبت قد و وزن، شاخص توده بدنی (BMI) و محدوده سلامت وزن به طور خودکار محاسبه و نمودار پایش رشد تشکیل می‌شود."
+                    } else {
+                        if (state.profile?.type == ProfileType.CHILD)
+                            "Record height and weight to assess growth proportionality based on child growth monitoring curves."
+                        else
+                            "Record height and weight to calculate BMI and track growth trends over time."
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -324,12 +475,26 @@ private fun MetricColumn(
 private fun GrowthRecordCard(
     record: GrowthRecord,
     isPersian: Boolean,
+    isChild: Boolean = false,
+    gender: Gender = Gender.MALE,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val category = BmiCalculator.getBmiCategory(record.bmi)
-    val categoryColor = Color(category.colorHex())
     val jalali = record.date.toJalali()
+
+    val (badgeText, badgeColor) = if (isChild) {
+        val childEval = ChildGrowthStandard.evaluateWeightForHeight(record.weightKg, record.heightCm, gender)
+        Pair(
+            if (isPersian) childEval.status.shortLabelFa() else childEval.status.shortLabelEn(),
+            Color(childEval.status.colorHex())
+        )
+    } else {
+        val category = BmiCalculator.getBmiCategory(record.bmi)
+        Pair(
+            if (isPersian) category.titleFa() else category.titleEn(),
+            Color(category.colorHex())
+        )
+    }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -354,14 +519,14 @@ private fun GrowthRecordCard(
                     Spacer(modifier = Modifier.width(8.dp))
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = categoryColor.copy(alpha = 0.12f)
+                        color = badgeColor.copy(alpha = 0.12f)
                     ) {
                         Text(
-                            text = if (isPersian) category.titleFa() else category.titleEn(),
+                            text = badgeText,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
-                            color = categoryColor
+                            color = badgeColor
                         )
                     }
                 }
@@ -376,8 +541,14 @@ private fun GrowthRecordCard(
                         append(" • ")
                         append(if (isPersian) "دور سر: ${record.headCircumferenceCm} س.م" else "Head: ${record.headCircumferenceCm} cm")
                     }
-                    append(" • ")
-                    append("BMI: ${record.bmi}")
+                    if (isChild) {
+                        val childEval = ChildGrowthStandard.evaluateWeightForHeight(record.weightKg, record.heightCm, gender)
+                        append(" • ")
+                        append(if (isPersian) "صدک: ~${childEval.percentileEstimate}٪" else "Percentile: ~${childEval.percentileEstimate}%")
+                    } else {
+                        append(" • ")
+                        append("BMI: ${record.bmi}")
+                    }
                 }
                 Text(
                     text = metricsText,
@@ -452,12 +623,14 @@ private fun GrowthTrackerViewPreview() {
         notes = "چک‌آپ ۶ ماهگی",
         createdAt = 0L
     )
+    val childEval = ChildGrowthStandard.evaluateWeightForHeight(r1.weightKg, r1.heightCm, sampleProfile.gender)
     val state = GrowthUiState(
         profile = sampleProfile,
         records = listOf(r1, r2, r3),
         latestRecord = r1,
-        bmiCategory = BmiCategory.NORMAL,
-        idealWeightRange = Pair(12.4, 16.7),
+        bmiCategory = null,
+        idealWeightRange = childEval.idealWeightRange,
+        childEvaluation = childEval,
         isAddDialogOpen = false,
         isLoading = false
     )

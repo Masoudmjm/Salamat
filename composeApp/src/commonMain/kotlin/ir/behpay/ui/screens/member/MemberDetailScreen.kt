@@ -399,6 +399,7 @@ fun MemberDetailContent(
             GrowthRecordDialog(
                 isPersian = isPersian,
                 isChild = isChild,
+                gender = profile.gender,
                 onDismiss = onDismissGrowthDialog,
                 onConfirm = onConfirmAddGrowth
             )

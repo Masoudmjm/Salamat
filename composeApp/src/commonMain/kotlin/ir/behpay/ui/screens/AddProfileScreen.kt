@@ -55,6 +55,7 @@ import ir.behpay.core.model.Gender
 import ir.behpay.core.model.Profile
 import ir.behpay.core.model.ProfileType
 import ir.behpay.core.ui.theme.BehpayTheme
+import ir.behpay.core.ui.theme.behpayTextFieldColors
 import kotlinx.datetime.LocalDate
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -219,6 +220,7 @@ fun AddProfileScreen(
                         errorMessage = null
                     },
                     label = { Text(if (isPersian) "نام و نام خانوادگی *" else "Full Name *") },
+                    colors = behpayTextFieldColors(containerColor = MaterialTheme.colorScheme.surface),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true
@@ -286,8 +288,9 @@ fun AddProfileScreen(
                         onValueChange = { if (it.length <= 2) dayStr = it },
                         label = { Text(if (isPersian) "روز" else "Day") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(containerColor = MaterialTheme.colorScheme.surface),
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                     OutlinedTextField(
@@ -295,8 +298,9 @@ fun AddProfileScreen(
                         onValueChange = { if (it.length <= 2) monthStr = it },
                         label = { Text(if (isPersian) "ماه" else "Month") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(containerColor = MaterialTheme.colorScheme.surface),
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                     OutlinedTextField(
@@ -304,8 +308,9 @@ fun AddProfileScreen(
                         onValueChange = { if (it.length <= 4) yearStr = it },
                         label = { Text(if (isPersian) "سال (مثلاً ۱۴۰۲)" else "Year") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(containerColor = MaterialTheme.colorScheme.surface),
                         modifier = Modifier.weight(1.5f),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                 }

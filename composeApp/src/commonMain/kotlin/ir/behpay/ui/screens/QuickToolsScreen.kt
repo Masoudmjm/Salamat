@@ -30,6 +30,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ir.behpay.core.ui.theme.BehpayTheme
+import ir.behpay.core.ui.theme.behpayTextFieldColors
 import ir.behpay.core.vaccine.IranVaccineSchedule
 import ir.behpay.ui.AppUiState
 import androidx.compose.ui.tooling.preview.Preview
@@ -114,6 +116,10 @@ fun QuickToolsScreen(
                             onValueChange = { heightInput = it },
                             label = { Text(if (state.isPersian) "قد (سانتی‌متر)" else "Height (cm)") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            colors = behpayTextFieldColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                            ),
+                            shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.weight(1f),
                             singleLine = true
                         )
@@ -122,6 +128,10 @@ fun QuickToolsScreen(
                             onValueChange = { weightInput = it },
                             label = { Text(if (state.isPersian) "وزن (کیلوگرم)" else "Weight (kg)") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            colors = behpayTextFieldColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                            ),
+                            shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.weight(1f),
                             singleLine = true
                         )
@@ -172,6 +182,29 @@ fun QuickToolsScreen(
                                     color = categoryColor
                                 )
                             }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = "ℹ️", style = MaterialTheme.typography.bodySmall)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (state.isPersian)
+                                    "نکته مهم: شاخص BMI فقط برای بزرگسالان طراحی شده و برای نوزادان و کودکان معتبر نیست. جهت ارزیابی تناسب قد و وزن کودک، از بخش «پایش رشد» در پرونده سلامت فرزندتان (بر اساس کارت واکسیناسیون و رشد) استفاده فرمایید."
+                                else
+                                    "Note: BMI is designed exclusively for adults and is not valid for infants or babies. For child growth, use the Growth Tracker based on the official vaccination card in the child's profile.",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }

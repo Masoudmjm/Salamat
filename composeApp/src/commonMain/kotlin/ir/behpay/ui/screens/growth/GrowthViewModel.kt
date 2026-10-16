@@ -2,7 +2,10 @@ package ir.behpay.ui.screens.growth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.behpay.core.growth.ChildGrowthStandard
+import ir.behpay.core.model.Gender
 import ir.behpay.core.model.GrowthRecord
+import ir.behpay.core.model.ProfileType
 import ir.behpay.data.repository.GrowthRepository
 import ir.behpay.data.repository.ProfileRepository
 import kotlin.random.Random
@@ -33,8 +36,28 @@ class GrowthViewModel(
                 .thenByDescending { it.createdAt }
         )
         val latest = sortedRecords.firstOrNull()
-        val bmiCategory = latest?.let { BmiCalculator.getBmiCategory(it.bmi) }
-        val idealWeightRange = latest?.let { BmiCalculator.calculateIdealWeightRange(it.heightCm) }
+        val isChild = profile?.type == ProfileType.CHILD
+        val gender = profile?.gender ?: Gender.MALE
+
+        val childEvaluation = if (isChild && latest != null) {
+            ChildGrowthStandard.evaluateWeightForHeight(latest.weightKg, latest.heightCm, gender)
+        } else {
+            null
+        }
+
+        val bmiCategory = if (!isChild && latest != null) {
+            BmiCalculator.getBmiCategory(latest.bmi)
+        } else {
+            null
+        }
+
+        val idealWeightRange = latest?.let {
+            if (isChild) {
+                ChildGrowthStandard.getHealthyWeightRange(it.heightCm, gender)
+            } else {
+                BmiCalculator.calculateIdealWeightRange(it.heightCm)
+            }
+        }
 
         GrowthUiState(
             profile = profile,
@@ -42,6 +65,7 @@ class GrowthViewModel(
             latestRecord = latest,
             bmiCategory = bmiCategory,
             idealWeightRange = idealWeightRange,
+            childEvaluation = childEvaluation,
             isAddDialogOpen = isAddDialogOpen,
             isLoading = false
         )

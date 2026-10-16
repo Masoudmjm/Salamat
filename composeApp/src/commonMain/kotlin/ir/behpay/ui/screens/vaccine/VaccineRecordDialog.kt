@@ -31,6 +31,7 @@ import ir.behpay.core.datetime.todayJalaliDate
 import ir.behpay.core.model.VaccineRecord
 import ir.behpay.core.model.VaccineStatus
 import ir.behpay.core.ui.theme.BehpayTheme
+import ir.behpay.core.ui.theme.behpayTextFieldColors
 import ir.behpay.core.vaccine.IranVaccineSchedule
 import kotlinx.datetime.LocalDate
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,8 +94,9 @@ fun VaccineRecordDialog(
                         onValueChange = { if (it.length <= 2) dayStr = it },
                         label = { Text(if (isPersian) "روز" else "Day") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(10.dp),
                         singleLine = true
                     )
                     OutlinedTextField(
@@ -102,8 +104,9 @@ fun VaccineRecordDialog(
                         onValueChange = { if (it.length <= 2) monthStr = it },
                         label = { Text(if (isPersian) "ماه" else "Month") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(10.dp),
                         singleLine = true
                     )
                     OutlinedTextField(
@@ -111,8 +114,9 @@ fun VaccineRecordDialog(
                         onValueChange = { if (it.length <= 4) yearStr = it },
                         label = { Text(if (isPersian) "سال" else "Year") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.weight(1.4f),
-                        shape = RoundedCornerShape(10.dp),
                         singleLine = true
                     )
                 }
@@ -122,8 +126,9 @@ fun VaccineRecordDialog(
                     onValueChange = { notes = it },
                     label = { Text(if (isPersian) "توضیحات و یادداشت (اختیاری)" else "Notes (Optional)") },
                     placeholder = { Text(if (isPersian) "مرکز بهداشت، واکنش و تب..." else "Health clinic, symptoms...") },
+                    colors = behpayTextFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
                     minLines = 2,
                     maxLines = 3
                 )

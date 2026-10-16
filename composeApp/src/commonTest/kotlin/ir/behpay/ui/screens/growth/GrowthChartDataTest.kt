@@ -117,12 +117,19 @@ class GrowthChartDataTest {
     fun testAvailableMetricsChildVsAdult() {
         val childRecords = listOf(r1, r2)
         val childMetrics = GrowthChartDataHelper.getAvailableMetrics(childRecords, isChild = true)
-        assertEquals(4, childMetrics.size)
+        // Child with head circumference has WEIGHT, HEIGHT, HEAD_CIRCUMFERENCE (BMI is excluded for babies)
+        assertEquals(3, childMetrics.size)
+        assertTrue(childMetrics.contains(GrowthChartMetric.WEIGHT))
+        assertTrue(childMetrics.contains(GrowthChartMetric.HEIGHT))
         assertTrue(childMetrics.contains(GrowthChartMetric.HEAD_CIRCUMFERENCE))
+        assertTrue(!childMetrics.contains(GrowthChartMetric.BMI))
 
-        // Adult should never show head circumference even if recorded
+        // Adult should have WEIGHT, HEIGHT, BMI and never show head circumference
         val adultMetrics = GrowthChartDataHelper.getAvailableMetrics(childRecords, isChild = false)
         assertEquals(3, adultMetrics.size)
+        assertTrue(adultMetrics.contains(GrowthChartMetric.WEIGHT))
+        assertTrue(adultMetrics.contains(GrowthChartMetric.HEIGHT))
+        assertTrue(adultMetrics.contains(GrowthChartMetric.BMI))
         assertTrue(!adultMetrics.contains(GrowthChartMetric.HEAD_CIRCUMFERENCE))
     }
 }

@@ -143,15 +143,22 @@ object GrowthChartDataHelper {
 
     /**
      * Determines which metrics to display in the switcher.
+     * BMI is designed for adults and excluded for child profiles.
      */
     fun getAvailableMetrics(records: List<GrowthRecord>, isChild: Boolean): List<GrowthChartMetric> {
-        return if (isChild && hasHeadCircumference(records)) {
-            listOf(
-                GrowthChartMetric.WEIGHT,
-                GrowthChartMetric.HEIGHT,
-                GrowthChartMetric.HEAD_CIRCUMFERENCE,
-                GrowthChartMetric.BMI
-            )
+        return if (isChild) {
+            if (hasHeadCircumference(records)) {
+                listOf(
+                    GrowthChartMetric.WEIGHT,
+                    GrowthChartMetric.HEIGHT,
+                    GrowthChartMetric.HEAD_CIRCUMFERENCE
+                )
+            } else {
+                listOf(
+                    GrowthChartMetric.WEIGHT,
+                    GrowthChartMetric.HEIGHT
+                )
+            }
         } else {
             listOf(
                 GrowthChartMetric.WEIGHT,

@@ -3,7 +3,9 @@ package ir.behpay.ui.screens.growth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,13 +31,17 @@ import androidx.compose.ui.unit.dp
 import ir.behpay.core.datetime.JalaliDate
 import ir.behpay.core.datetime.toLocalDate
 import ir.behpay.core.datetime.todayJalaliDate
+import ir.behpay.core.growth.ChildGrowthStandard
+import ir.behpay.core.model.Gender
 import ir.behpay.core.ui.theme.BehpayTheme
+import ir.behpay.core.ui.theme.behpayTextFieldColors
 import kotlinx.datetime.LocalDate
 
 @Composable
 fun GrowthRecordDialog(
     isPersian: Boolean,
     isChild: Boolean,
+    gender: Gender = Gender.MALE,
     onDismiss: () -> Unit,
     onConfirm: (date: LocalDate, weightKg: Double, heightCm: Double, headCircumferenceCm: Double?, notes: String?) -> Unit
 ) {
@@ -52,7 +58,13 @@ fun GrowthRecordDialog(
 
     val parsedWeight = weightStr.toDoubleOrNull()
     val parsedHeight = heightStr.toDoubleOrNull()
-    val liveBmi = if (parsedWeight != null && parsedHeight != null && parsedWeight > 0 && parsedHeight > 0) {
+    val hasValidMeasurements = parsedWeight != null && parsedHeight != null && parsedWeight > 0 && parsedHeight > 0
+
+    val liveChildEvaluation = if (isChild && hasValidMeasurements) {
+        ChildGrowthStandard.evaluateWeightForHeight(parsedWeight, parsedHeight, gender)
+    } else null
+
+    val liveBmi = if (!isChild && hasValidMeasurements) {
         BmiCalculator.calculateBmi(parsedWeight, parsedHeight)
     } else null
     val liveBmiCategory = liveBmi?.let { BmiCalculator.getBmiCategory(it) }
@@ -89,6 +101,8 @@ fun GrowthRecordDialog(
                         label = { Text(if (isPersian) "سال" else "Year") },
                         modifier = Modifier.weight(1.3f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                     OutlinedTextField(
@@ -97,6 +111,8 @@ fun GrowthRecordDialog(
                         label = { Text(if (isPersian) "ماه" else "Month") },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                     OutlinedTextField(
@@ -105,6 +121,8 @@ fun GrowthRecordDialog(
                         label = { Text(if (isPersian) "روز" else "Day") },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                 }
@@ -120,6 +138,8 @@ fun GrowthRecordDialog(
                         label = { Text(if (isPersian) "وزن (کیلوگرم)" else "Weight (kg)") },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                     OutlinedTextField(
@@ -128,6 +148,8 @@ fun GrowthRecordDialog(
                         label = { Text(if (isPersian) "قد (سانتی‌متر)" else "Height (cm)") },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                 }
@@ -140,12 +162,54 @@ fun GrowthRecordDialog(
                         label = { Text(if (isPersian) "دور سر (سانتی‌متر — اختیاری)" else "Head Circ. (cm — optional)") },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = behpayTextFieldColors(),
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                 }
 
-                // Live BMI Preview Card
-                if (liveBmi != null && liveBmiCategory != null) {
+                // Live Child Growth Evaluation Preview (Child)
+                if (isChild && liveChildEvaluation != null) {
+                    val statusColor = Color(liveChildEvaluation.status.colorHex())
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        color = statusColor.copy(alpha = 0.12f)
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = if (isPersian) "پایش رشد (کارت واکسیناسیون)" else "Growth Card Status",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = statusColor
+                                )
+                                Text(
+                                    text = if (isPersian) liveChildEvaluation.status.shortLabelFa() else liveChildEvaluation.status.shortLabelEn(),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = statusColor
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = if (isPersian)
+                                    "محدوده وزن متناسب با این قد: ${liveChildEvaluation.idealWeightRange.first} تا ${liveChildEvaluation.idealWeightRange.second} ک.گ (صدک: ~${liveChildEvaluation.percentileEstimate}٪)"
+                                else
+                                    "Healthy weight for height: ${liveChildEvaluation.idealWeightRange.first} - ${liveChildEvaluation.idealWeightRange.second} kg (~${liveChildEvaluation.percentileEstimate}th percentile)",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                // Live BMI Preview Card (Adult)
+                if (!isChild && liveBmi != null && liveBmiCategory != null) {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -177,6 +241,8 @@ fun GrowthRecordDialog(
                     value = notes,
                     onValueChange = { notes = it },
                     label = { Text(if (isPersian) "یادداشت (اختیاری)" else "Notes (optional)") },
+                    colors = behpayTextFieldColors(),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 2
                 )

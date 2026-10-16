@@ -1,5 +1,6 @@
 package ir.behpay.ui.screens.growth
 
+import ir.behpay.core.growth.ChildGrowthEvaluation
 import ir.behpay.core.model.GrowthRecord
 import ir.behpay.core.model.Profile
 import kotlin.math.roundToInt
@@ -87,6 +88,7 @@ data class GrowthUiState(
     val latestRecord: GrowthRecord? = null,
     val bmiCategory: BmiCategory? = null,
     val idealWeightRange: Pair<Double, Double>? = null,
+    val childEvaluation: ChildGrowthEvaluation? = null,
     val isAddDialogOpen: Boolean = false,
     val isLoading: Boolean = true
 )

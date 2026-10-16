@@ -22,7 +22,30 @@ private val LightColorScheme = lightColorScheme(
     onSurface = OnSurfaceLight,
     surfaceVariant = SurfaceVariantLight,
     onSurfaceVariant = OnSurfaceVariantLight,
-    outline = OutlineLight
+    outline = OutlineLight,
+    outlineVariant = OutlineVariantLight
+)
+
+/**
+ * Standard colors for OutlinedTextField across Behpay screens and dialogs.
+ * Ensures crisp border visibility, proper contrast, and clear editable affordance.
+ */
+@Composable
+fun behpayTextFieldColors(
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+    focusedContainerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surface,
+    unfocusedBorderColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.outline,
+    focusedBorderColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
+    unfocusedLabelColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    focusedLabelColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary
+): androidx.compose.material3.TextFieldColors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = focusedBorderColor,
+    unfocusedBorderColor = unfocusedBorderColor,
+    focusedContainerColor = focusedContainerColor,
+    unfocusedContainerColor = containerColor,
+    focusedLabelColor = focusedLabelColor,
+    unfocusedLabelColor = unfocusedLabelColor,
+    cursorColor = MaterialTheme.colorScheme.primary
 )
 
 /**
