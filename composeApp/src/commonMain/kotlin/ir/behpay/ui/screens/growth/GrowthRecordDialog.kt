@@ -198,9 +198,9 @@ fun GrowthRecordDialog(
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = if (isPersian)
-                                    "محدوده وزن متناسب با این قد: ${liveChildEvaluation.idealWeightRange.first} تا ${liveChildEvaluation.idealWeightRange.second} ک.گ (صدک: ~${liveChildEvaluation.percentileEstimate}٪)"
+                                    "محدوده وزن متناسب با این قد: ${liveChildEvaluation.idealWeightRange.first} تا ${liveChildEvaluation.idealWeightRange.second} کیلوگرم"
                                 else
-                                    "Healthy weight for height: ${liveChildEvaluation.idealWeightRange.first} - ${liveChildEvaluation.idealWeightRange.second} kg (~${liveChildEvaluation.percentileEstimate}th percentile)",
+                                    "Healthy weight for height: ${liveChildEvaluation.idealWeightRange.first} - ${liveChildEvaluation.idealWeightRange.second} kg",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

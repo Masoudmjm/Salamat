@@ -114,9 +114,9 @@ enum class GrowthChartMetric {
     }
 
     fun unitFa(): String = when (this) {
-        WEIGHT -> "ک.گ"
-        HEIGHT -> "س.م"
-        HEAD_CIRCUMFERENCE -> "س.م"
+        WEIGHT -> "کیلوگرم"
+        HEIGHT -> "سانتی‌متر"
+        HEAD_CIRCUMFERENCE -> "سانتی‌متر"
         BMI -> ""
     }
 

@@ -150,38 +150,19 @@ private fun GrowthSummaryCard(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = if (isPersian) "پایش تناسب قد و وزن کودک (کارت واکسیناسیون)" else "Child Growth Proportionality",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = if (isPersian) childEvaluation.status.shortLabelFa() else childEvaluation.status.shortLabelEn(),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = statusColor
-                            )
-                        }
-
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = statusColor.copy(alpha = 0.14f)
-                        ) {
-                            Text(
-                                text = if (isPersian) "صدک: ~${childEvaluation.percentileEstimate}٪" else "Percentile: ~${childEvaluation.percentileEstimate}%",
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = statusColor
-                            )
-                        }
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = if (isPersian) "پایش تناسب قد و وزن کودک (کارت واکسیناسیون)" else "Child Growth Proportionality",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = if (isPersian) childEvaluation.status.shortLabelFa() else childEvaluation.status.shortLabelEn(),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = statusColor
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
@@ -197,16 +178,16 @@ private fun GrowthSummaryCard(
                     ) {
                         MetricColumn(
                             title = if (isPersian) "وزن" else "Weight",
-                            value = if (isPersian) "${latest.weightKg} ک.گ" else "${latest.weightKg} kg"
+                            value = if (isPersian) "${latest.weightKg} کیلوگرم" else "${latest.weightKg} kg"
                         )
                         MetricColumn(
                             title = if (isPersian) "قد" else "Height",
-                            value = if (isPersian) "${latest.heightCm} س.م" else "${latest.heightCm} cm"
+                            value = if (isPersian) "${latest.heightCm} سانتی‌متر" else "${latest.heightCm} cm"
                         )
                         if (latest.headCircumferenceCm != null && latest.headCircumferenceCm > 0) {
                             MetricColumn(
                                 title = if (isPersian) "دور سر" else "Head Circ.",
-                                value = if (isPersian) "${latest.headCircumferenceCm} س.م" else "${latest.headCircumferenceCm} cm"
+                                value = if (isPersian) "${latest.headCircumferenceCm} سانتی‌متر" else "${latest.headCircumferenceCm} cm"
                             )
                         }
                     }
@@ -217,7 +198,7 @@ private fun GrowthSummaryCard(
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = if (isPersian)
-                                "محدوده وزن متناسب با این قد در کارت پایش رشد: ${range.first} تا ${range.second} کیلوگرم (میانه استاندارد: ${childEvaluation.medianWeightKg} ک.گ)"
+                                "محدوده وزن متناسب با این قد در کارت پایش رشد: ${range.first} تا ${range.second} کیلوگرم (میانه استاندارد: ${childEvaluation.medianWeightKg} کیلوگرم)"
                             else
                                 "Standard weight range for this height: ${range.first} - ${range.second} kg (Median: ${childEvaluation.medianWeightKg} kg)",
                             style = MaterialTheme.typography.bodySmall,
@@ -332,16 +313,16 @@ private fun GrowthSummaryCard(
                     ) {
                         MetricColumn(
                             title = if (isPersian) "وزن" else "Weight",
-                            value = if (isPersian) "${latest.weightKg} ک.گ" else "${latest.weightKg} kg"
+                            value = if (isPersian) "${latest.weightKg} کیلوگرم" else "${latest.weightKg} kg"
                         )
                         MetricColumn(
                             title = if (isPersian) "قد" else "Height",
-                            value = if (isPersian) "${latest.heightCm} س.م" else "${latest.heightCm} cm"
+                            value = if (isPersian) "${latest.heightCm} سانتی‌متر" else "${latest.heightCm} cm"
                         )
                         if (latest.headCircumferenceCm != null && latest.headCircumferenceCm > 0) {
                             MetricColumn(
                                 title = if (isPersian) "دور سر" else "Head Circ.",
-                                value = if (isPersian) "${latest.headCircumferenceCm} س.م" else "${latest.headCircumferenceCm} cm"
+                                value = if (isPersian) "${latest.headCircumferenceCm} سانتی‌متر" else "${latest.headCircumferenceCm} cm"
                             )
                         }
                     }
@@ -534,18 +515,14 @@ private fun GrowthRecordCard(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 val metricsText = buildString {
-                    append(if (isPersian) "وزن: ${record.weightKg} ک.گ" else "Weight: ${record.weightKg} kg")
+                    append(if (isPersian) "وزن: ${record.weightKg} کیلوگرم" else "Weight: ${record.weightKg} kg")
                     append(" • ")
-                    append(if (isPersian) "قد: ${record.heightCm} س.م" else "Height: ${record.heightCm} cm")
+                    append(if (isPersian) "قد: ${record.heightCm} سانتی‌متر" else "Height: ${record.heightCm} cm")
                     if (record.headCircumferenceCm != null && record.headCircumferenceCm > 0) {
                         append(" • ")
-                        append(if (isPersian) "دور سر: ${record.headCircumferenceCm} س.م" else "Head: ${record.headCircumferenceCm} cm")
+                        append(if (isPersian) "دور سر: ${record.headCircumferenceCm} سانتی‌متر" else "Head: ${record.headCircumferenceCm} cm")
                     }
-                    if (isChild) {
-                        val childEval = ChildGrowthStandard.evaluateWeightForHeight(record.weightKg, record.heightCm, gender)
-                        append(" • ")
-                        append(if (isPersian) "صدک: ~${childEval.percentileEstimate}٪" else "Percentile: ~${childEval.percentileEstimate}%")
-                    } else {
+                    if (!isChild) {
                         append(" • ")
                         append("BMI: ${record.bmi}")
                     }

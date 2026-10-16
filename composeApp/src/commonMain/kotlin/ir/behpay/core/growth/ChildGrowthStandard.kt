@@ -43,13 +43,13 @@ enum class ChildGrowthStatus {
     fun recommendationFa(): String = when (this) {
         UNDERWEIGHT_FOR_HEIGHT -> "نسبت وزن به قد کودک کمتر از محدوده استاندارد کارت پایش رشد است. بررسی الگوی تغذیه، شیردهی و مشورت با مراقب سلامت یا پزشک کودکان در مرکز بهداشت توصیه می‌شود."
         APPROPRIATE -> "نسبت قد و وزن کودک کاملاً متناسب و در محدوده سبز کارت پایش رشد وزارت بهداشت قرار دارد. تداوم تغذیه سالم، خواب منظم و مراجعات دوره‌ای واکسیناسیون توصیه می‌شود."
-        OVERWEIGHT_FOR_HEIGHT -> "وزن کودک نسبت به قد او بالاتر از صدک استاندارد کارت رشد است. پایش مستمر در نوبت‌های بعدی واکسیناسیون و مشورت با پزشک کودکان جهت تنظیم برنامه تغذیه پیشنهاد می‌شود."
+        OVERWEIGHT_FOR_HEIGHT -> "وزن کودک نسبت به قد او بالاتر از محدوده استاندارد کارت رشد است. پایش مستمر در نوبت‌های بعدی واکسیناسیون و مشورت با پزشک کودکان جهت تنظیم برنامه تغذیه پیشنهاد می‌شود."
     }
 
     fun recommendationEn(): String = when (this) {
         UNDERWEIGHT_FOR_HEIGHT -> "Weight-for-height is below the standard growth curve of the child health card. Nutritional review and pediatrician consultation are recommended."
         APPROPRIATE -> "Weight and height ratio is within the optimal green zone of the official child growth monitoring chart. Continue standard feeding and routine checkups."
-        OVERWEIGHT_FOR_HEIGHT -> "Weight is above the standard percentile curve for this height. Regular monitoring at vaccination visits and pediatrician consultation are recommended."
+        OVERWEIGHT_FOR_HEIGHT -> "Weight is above the standard growth curve for this height. Regular monitoring at vaccination visits and pediatrician consultation are recommended."
     }
 }
 
