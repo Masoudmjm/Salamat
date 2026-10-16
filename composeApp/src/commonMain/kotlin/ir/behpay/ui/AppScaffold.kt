@@ -7,8 +7,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -18,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -99,6 +103,12 @@ fun AppScaffold(
     }
 
     Scaffold(
+        contentWindowInsets = if (isBottomBarVisible) ScaffoldDefaults.contentWindowInsets else WindowInsets(
+            0,
+            0,
+            0,
+            0
+        ),
         topBar = {
             if (isBottomBarVisible) {
                 TopAppBar(
@@ -129,7 +139,10 @@ fun AppScaffold(
                                     }
                             ) {
                                 Row(
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                    modifier = Modifier.padding(
+                                        horizontal = 10.dp,
+                                        vertical = 6.dp
+                                    ),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     ProfileAvatar(
@@ -165,11 +178,17 @@ fun AppScaffold(
                     tonalElevation = 6.dp
                 ) {
                     BottomNavItem.entries.forEach { item ->
-                        val isSelected = currentDestination?.hierarchy?.any { it.hasRoute(item.route::class) } == true
+                        val isSelected =
+                            currentDestination?.hierarchy?.any { it.hasRoute(item.route::class) } == true
                         val title = if (state.isPersian) item.titleFa else item.titleEn
                         NavigationBarItem(
                             icon = { Icon(imageVector = item.icon, contentDescription = title) },
-                            label = { Text(text = title, style = MaterialTheme.typography.labelSmall) },
+                            label = {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            },
                             selected = isSelected,
                             onClick = {
                                 navController.navigate(item.route) {
@@ -189,9 +208,7 @@ fun AppScaffold(
         NavHost(
             navController = navController,
             startDestination = Route.Home,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+            modifier = Modifier.fillMaxSize()
         ) {
             composable<Route.Onboarding> {
                 OnboardingScreen(
@@ -203,7 +220,10 @@ fun AppScaffold(
                         navController.navigate(Route.Home) {
                             popUpTo(Route.Onboarding) { inclusive = true }
                         }
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .systemBarsPadding()
                 )
             }
 
@@ -225,7 +245,11 @@ fun AppScaffold(
                     },
                     onNavigateToMemberDetail = { profileId ->
                         navController.navigate(Route.MemberDetail(profileId))
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding)
                 )
             }
 
@@ -246,12 +270,22 @@ fun AppScaffold(
                     },
                     onDeleteProfile = { profileId ->
                         viewModel.deleteProfile(profileId)
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding)
                 )
             }
 
             composable<Route.QuickTools> {
-                QuickToolsScreen(state = state)
+                QuickToolsScreen(
+                    state = state,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding)
+                )
             }
 
             composable<Route.Settings> {
@@ -263,7 +297,11 @@ fun AppScaffold(
                     onCheckNotificationPermission = { viewModel.checkNotificationPermission() },
                     onRequestNotificationPermission = { viewModel.requestNotificationPermission() },
                     onSendTestNotification = { viewModel.sendTestNotification() },
-                    onClearTestNotificationMessage = { viewModel.clearTestNotificationMessage() }
+                    onClearTestNotificationMessage = { viewModel.clearTestNotificationMessage() },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .consumeWindowInsets(innerPadding)
                 )
             }
 
@@ -272,7 +310,14 @@ fun AppScaffold(
                     isPersian = state.isPersian,
                     onBack = { navController.popBackStack() },
                     onSaveProfile = { name, birthDate, gender, type, avatarColor, avatarPhoto ->
-                        viewModel.addProfile(name, birthDate, gender, type, avatarColor, avatarPhoto) {
+                        viewModel.addProfile(
+                            name,
+                            birthDate,
+                            gender,
+                            type,
+                            avatarColor,
+                            avatarPhoto
+                        ) {
                             navController.navigate(Route.Home) {
                                 popUpTo(Route.Home) { inclusive = false }
                             }
@@ -290,7 +335,15 @@ fun AppScaffold(
                         initialProfile = profile,
                         onBack = { navController.popBackStack() },
                         onSaveProfile = { name, birthDate, gender, type, avatarColor, avatarPhoto ->
-                            viewModel.updateProfile(profile.id, name, birthDate, gender, type, avatarColor, avatarPhoto) {
+                            viewModel.updateProfile(
+                                profile.id,
+                                name,
+                                birthDate,
+                                gender,
+                                type,
+                                avatarColor,
+                                avatarPhoto
+                            ) {
                                 navController.popBackStack()
                             }
                         }

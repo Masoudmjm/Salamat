@@ -32,8 +32,8 @@ private val LightColorScheme = lightColorScheme(
  */
 @Composable
 fun behpayTextFieldColors(
-    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-    focusedContainerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surface,
+    containerColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Transparent,
+    focusedContainerColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Transparent,
     unfocusedBorderColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.outline,
     focusedBorderColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary,
     unfocusedLabelColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant,

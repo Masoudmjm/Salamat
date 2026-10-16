@@ -44,4 +44,19 @@ class JalaliDateTest {
         assertEquals("۱۲۳۴۵۶۷۸۹۰", "1234567890".toPersianDigits())
         assertEquals("1234567890", "۱۲۳۴۵۶۷۸۹۰".toWesternDigits())
     }
+
+    @Test
+    fun testFutureAndPastDateComparison() {
+        val today = todayLocalDate()
+        val pastDate = LocalDate(2020, 1, 1)
+        val futureDate = LocalDate(2099, 1, 1)
+
+        kotlin.test.assertTrue(pastDate <= today)
+        kotlin.test.assertTrue(futureDate > today)
+
+        val pastJalali = JalaliDate(1390, 1, 1).toLocalDate()
+        val futureJalali = JalaliDate(1500, 1, 1).toLocalDate()
+        kotlin.test.assertTrue(pastJalali <= today)
+        kotlin.test.assertTrue(futureJalali > today)
+    }
 }

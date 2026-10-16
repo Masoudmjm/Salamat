@@ -18,7 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import ir.behpay.core.datetime.JalaliDate
 import ir.behpay.core.datetime.toJalali
 import ir.behpay.core.datetime.toLocalDate
+import ir.behpay.core.datetime.todayLocalDate
+import ir.behpay.core.datetime.toWesternDigits
 import ir.behpay.core.model.Gender
 import ir.behpay.core.model.Profile
 import ir.behpay.core.model.ProfileType
@@ -96,6 +98,7 @@ fun AddProfileScreen(
     var selectedColor by remember(initialProfile) { mutableStateOf(initialProfile?.avatarColor ?: AVATAR_COLORS[0]) }
     var selectedPhoto by remember(initialProfile) { mutableStateOf(initialProfile?.avatarPhoto) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var dateErrorMessage by remember { mutableStateOf<String?>(null) }
 
     val pickImage = rememberImagePicker { base64 ->
         if (base64 != null) {
@@ -120,8 +123,8 @@ fun AddProfileScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = if (isPersian) "بازگشت" else "Back"
                         )
                     }
                 }
@@ -220,7 +223,7 @@ fun AddProfileScreen(
                         errorMessage = null
                     },
                     label = { Text(if (isPersian) "نام و نام خانوادگی *" else "Full Name *") },
-                    colors = behpayTextFieldColors(containerColor = MaterialTheme.colorScheme.surface),
+                    colors = behpayTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true
@@ -285,33 +288,62 @@ fun AddProfileScreen(
                 ) {
                     OutlinedTextField(
                         value = dayStr,
-                        onValueChange = { if (it.length <= 2) dayStr = it },
+                        onValueChange = {
+                            if (it.length <= 2) {
+                                dayStr = it
+                                dateErrorMessage = null
+                                errorMessage = null
+                            }
+                        },
                         label = { Text(if (isPersian) "روز" else "Day") },
+                        isError = dateErrorMessage != null,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        colors = behpayTextFieldColors(containerColor = MaterialTheme.colorScheme.surface),
+                        colors = behpayTextFieldColors(),
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                     OutlinedTextField(
                         value = monthStr,
-                        onValueChange = { if (it.length <= 2) monthStr = it },
+                        onValueChange = {
+                            if (it.length <= 2) {
+                                monthStr = it
+                                dateErrorMessage = null
+                                errorMessage = null
+                            }
+                        },
                         label = { Text(if (isPersian) "ماه" else "Month") },
+                        isError = dateErrorMessage != null,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        colors = behpayTextFieldColors(containerColor = MaterialTheme.colorScheme.surface),
+                        colors = behpayTextFieldColors(),
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true
                     )
                     OutlinedTextField(
                         value = yearStr,
-                        onValueChange = { if (it.length <= 4) yearStr = it },
+                        onValueChange = {
+                            if (it.length <= 4) {
+                                yearStr = it
+                                dateErrorMessage = null
+                                errorMessage = null
+                            }
+                        },
                         label = { Text(if (isPersian) "سال (مثلاً ۱۴۰۲)" else "Year") },
+                        isError = dateErrorMessage != null,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        colors = behpayTextFieldColors(containerColor = MaterialTheme.colorScheme.surface),
+                        colors = behpayTextFieldColors(),
                         modifier = Modifier.weight(1.5f),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true
+                    )
+                }
+                if (dateErrorMessage != null) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = dateErrorMessage!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }
@@ -371,20 +403,47 @@ fun AddProfileScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = {
+                        dateErrorMessage = null
+                        errorMessage = null
                         if (name.trim().isEmpty()) {
                             errorMessage = if (isPersian) "لطفاً نام را وارد کنید." else "Please enter a name."
                             return@Button
                         }
-                        val y = yearStr.toIntOrNull()
-                        val m = monthStr.toIntOrNull()
-                        val d = dayStr.toIntOrNull()
-                        if (y == null || m == null || d == null || m !in 1..12 || d !in 1..31) {
-                            errorMessage = if (isPersian) "لطفاً تاریخ تولد معتبر وارد کنید." else "Please enter a valid birth date."
+                        val y = yearStr.toWesternDigits().trim().toIntOrNull()
+                        val m = monthStr.toWesternDigits().trim().toIntOrNull()
+                        val d = dayStr.toWesternDigits().trim().toIntOrNull()
+                        if (y == null || m == null || d == null || y !in 1200..1500 || m !in 1..12 || d !in 1..31) {
+                            val err = if (isPersian) "لطفاً تاریخ تولد معتبر وارد کنید." else "Please enter a valid birth date."
+                            dateErrorMessage = err
+                            errorMessage = err
                             return@Button
                         }
 
-                        val jalali = JalaliDate(y, m, d)
-                        val gregorian = jalali.toLocalDate()
+                        val jalali = try {
+                            JalaliDate(y, m, d)
+                        } catch (_: Exception) {
+                            val err = if (isPersian) "لطفاً تاریخ تولد معتبر وارد کنید." else "Please enter a valid birth date."
+                            dateErrorMessage = err
+                            errorMessage = err
+                            return@Button
+                        }
+
+                        val gregorian = try {
+                            jalali.toLocalDate()
+                        } catch (_: Exception) {
+                            val err = if (isPersian) "لطفاً تاریخ تولد معتبر وارد کنید." else "Please enter a valid birth date."
+                            dateErrorMessage = err
+                            errorMessage = err
+                            return@Button
+                        }
+
+                        val today = todayLocalDate()
+                        if (gregorian > today) {
+                            val err = if (isPersian) "تاریخ تولد نمی‌تواند در آینده باشد." else "Birth date cannot be in the future."
+                            dateErrorMessage = err
+                            errorMessage = err
+                            return@Button
+                        }
 
                         onSaveProfile(
                             name.trim(),
