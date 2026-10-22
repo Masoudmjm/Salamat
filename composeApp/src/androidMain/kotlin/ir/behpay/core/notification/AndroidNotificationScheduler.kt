@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -29,6 +30,7 @@ class AndroidNotificationScheduler(
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val channel = NotificationChannel(
                 NotificationChannelType.HEALTH_REMINDERS.id,
                 NotificationChannelType.HEALTH_REMINDERS.nameFa,
@@ -37,6 +39,8 @@ class AndroidNotificationScheduler(
                 description = NotificationChannelType.HEALTH_REMINDERS.descriptionFa
                 enableLights(true)
                 enableVibration(true)
+                setSound(defaultSoundUri, null)
+                setShowBadge(true)
             }
             notificationManager.createNotificationChannel(channel)
         }
@@ -67,9 +71,22 @@ class AndroidNotificationScheduler(
             return
         }
 
+        val canExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            alarmManager.canScheduleExactAlarms()
+        } else {
+            true
+        }
+
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (canExact && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Works on Samsung One UI without requiring restricted exact alarm permission and wakes from Doze
+                alarmManager.setAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     triggerTime,
                     pendingIntent
@@ -82,12 +99,20 @@ class AndroidNotificationScheduler(
                 )
             }
         } catch (_: SecurityException) {
-            // In case exact alarm permission is restricted on Android 12+, fall back to standard alarm
-            alarmManager.set(
-                AlarmManager.RTC_WAKEUP,
-                triggerTime,
-                pendingIntent
-            )
+            // In case exact alarm permission is restricted on Android 12+, fall back to idle-allowed alarm
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+            } else {
+                alarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerTime,
+                    pendingIntent
+                )
+            }
         }
     }
 
@@ -140,7 +165,10 @@ class AndroidNotificationScheduler(
 
     override suspend fun requestPermission(): Boolean {
         if (!hasPermission()) {
-            openNotificationSettings()
+            val prompted = AndroidNotificationPermissionRequester.requestPrompt()
+            if (!prompted) {
+                openNotificationSettings()
+            }
         }
         return hasPermission()
     }
@@ -173,6 +201,8 @@ class AndroidNotificationScheduler(
     }
 
     override suspend fun showImmediateNotification(item: NotificationItem) {
+        createNotificationChannel()
+
         val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)?.apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("route", item.payloadRoute)
@@ -187,12 +217,22 @@ class AndroidNotificationScheduler(
             )
         }
 
+        val monochromeId = context.resources.getIdentifier("ic_launcher_monochrome", "drawable", context.packageName)
+        val iconRes = if (monochromeId != 0) {
+            monochromeId
+        } else if (context.applicationInfo.icon != 0) {
+            context.applicationInfo.icon
+        } else {
+            android.R.drawable.ic_dialog_info
+        }
+
         val notification = NotificationCompat.Builder(context, item.channel.id)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(iconRes)
             .setContentTitle(item.title)
             .setContentText(item.body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(item.body))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)
             .apply {
                 if (contentPendingIntent != null) {

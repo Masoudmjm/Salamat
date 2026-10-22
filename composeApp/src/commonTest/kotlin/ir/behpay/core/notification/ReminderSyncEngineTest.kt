@@ -260,4 +260,38 @@ class ReminderSyncEngineTest {
         assertEquals(1, fakeScheduler.scheduledItems.size)
         assertTrue(fakeScheduler.scheduledItems[0].title.contains("امروز"))
     }
+
+    @Test
+    fun testSyncSchedulesFutureRemindersInAdvance() = runTest {
+        val record = VaccineRecord(
+            id = "rec_future",
+            profileId = "c1",
+            vaccineCode = "PENTA_1",
+            targetAgeMonths = 2,
+            status = VaccineStatus.DUE,
+            administeredDate = null,
+            notes = null,
+            createdAt = 0L
+        )
+        // Due on 2024-04-01, current date is 14 days before: 2024-03-18
+        val currentDate = LocalDate(2024, 3, 18)
+        val prefs = NotificationPreferences(
+            enabled = true,
+            notify7DaysBefore = true,
+            notify1DayBefore = true,
+            notifyOnDueDate = true
+        )
+
+        engine.sync(
+            profiles = listOf(sampleChild),
+            pendingVaccines = listOf(record),
+            checkups = emptyList(),
+            preferences = prefs,
+            currentDate = currentDate
+        )
+
+        // 7 days before (2024-03-25), 1 day before (2024-03-31), due date (2024-04-01) are all upcoming
+        assertEquals(3, fakeScheduler.scheduledItems.size)
+    }
 }
+

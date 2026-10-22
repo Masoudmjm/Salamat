@@ -13,7 +13,7 @@ import ir.behpay.ui.AppViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun App() {
+fun App(initialRoute: String? = null) {
     val viewModel: AppViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsState()
 
@@ -22,7 +22,7 @@ fun App() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            AppScaffold(viewModel = viewModel)
+            AppScaffold(viewModel = viewModel, initialRoute = initialRoute)
         }
     }
 }

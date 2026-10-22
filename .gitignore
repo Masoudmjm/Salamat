@@ -13,6 +13,8 @@ xcuserdata/
 Pods/
 *.jks
 *.keystore
+google-services.json
+AGENTS.md
 
 # Android Studio / IntelliJ IDEA
 .idea/caches/

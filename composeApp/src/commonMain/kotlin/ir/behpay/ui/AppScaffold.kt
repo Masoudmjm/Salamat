@@ -62,7 +62,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScaffold(
-    viewModel: AppViewModel = koinViewModel()
+    viewModel: AppViewModel = koinViewModel(),
+    initialRoute: String? = null
 ) {
     val state by viewModel.uiState.collectAsState()
     val navController = rememberNavController()
@@ -74,6 +75,18 @@ fun AppScaffold(
     // Refresh notification permission state on every resume from OS settings
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.checkNotificationPermission()
+    }
+
+    // Handle deep link / payload route from notification tap
+    LaunchedEffect(initialRoute, state.isLoading) {
+        if (!state.isLoading && !initialRoute.isNullOrBlank()) {
+            if (initialRoute.startsWith("member/")) {
+                val profileId = initialRoute.removePrefix("member/")
+                if (profileId.isNotBlank()) {
+                    navController.navigate(Route.MemberDetail(profileId))
+                }
+            }
+        }
     }
 
     // First-launch onboarding check

@@ -66,7 +66,6 @@ kotlin {
         }
 
         androidMain.dependencies {
-            implementation(libs.composeUiTooling)
             implementation(libs.koinAndroid)
             implementation(libs.android.driver)
             implementation(libs.core.ktx)

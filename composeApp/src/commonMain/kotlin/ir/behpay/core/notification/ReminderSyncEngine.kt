@@ -137,6 +137,140 @@ class ReminderSyncEngine(
         return notifications
     }
 
+    fun generateUpcomingSchedule(
+        profiles: List<Profile>,
+        pendingVaccines: List<VaccineRecord>,
+        checkups: List<CheckupReminder>,
+        preferences: NotificationPreferences,
+        currentDate: LocalDate,
+        isPersian: Boolean = true
+    ): List<NotificationItem> {
+        if (!preferences.enabled) return emptyList()
+
+        val profileMap = profiles.associateBy { it.id }
+        val notifications = mutableListOf<NotificationItem>()
+
+        // 1. Pending Childhood Vaccines
+        for (record in pendingVaccines) {
+            val profile = profileMap[record.profileId] ?: continue
+            val dueDate = IranVaccineSchedule.calculateDueDate(profile.birthDate, record.targetAgeMonths)
+            val def = IranVaccineSchedule.getByCode(record.vaccineCode)
+            val vaccineName = if (isPersian) (def?.nameFa ?: record.vaccineCode) else (def?.nameEn ?: record.vaccineCode)
+
+            val upcomingTriggers = mutableListOf<Int>()
+            if (preferences.notify7DaysBefore && dueDate.minusDays(7) >= currentDate) upcomingTriggers.add(7)
+            if (preferences.notify1DayBefore && dueDate.minusDays(1) >= currentDate) upcomingTriggers.add(1)
+            if (preferences.notifyOnDueDate && dueDate >= currentDate) upcomingTriggers.add(0)
+            if (preferences.notifyWhenOverdue && currentDate > dueDate) upcomingTriggers.add(-1)
+
+            for (triggerDay in upcomingTriggers) {
+                val notifyDate = when (triggerDay) {
+                    -1 -> currentDate // Remind today if overdue
+                    else -> dueDate.minusDays(triggerDay)
+                }
+                val scheduledEpoch = calculateScheduledTime(notifyDate, preferences.preferredHour, preferences.preferredMinute)
+
+                val (title, body) = when (triggerDay) {
+                    7 -> {
+                        val t = if (isPersian) "یادآور واکسیناسیون (${profile.name})" else "Vaccine Reminder (${profile.name})"
+                        val b = if (isPersian) "۷ روز تا موعد $vaccineName باقی مانده است." else "7 days remaining until $vaccineName."
+                        Pair(t, b)
+                    }
+                    1 -> {
+                        val t = if (isPersian) "یادآور واکسیناسیون (${profile.name})" else "Vaccine Reminder (${profile.name})"
+                        val b = if (isPersian) "فردا موعد $vaccineName است." else "Tomorrow is due for $vaccineName."
+                        Pair(t, b)
+                    }
+                    0 -> {
+                        val t = if (isPersian) "موعد واکسیناسیون امروز (${profile.name})" else "Vaccine Due Today (${profile.name})"
+                        val b = if (isPersian) "امروز موعد تزریق $vaccineName است. لطفاً به پایگاه سلامت مراجعه فرمایید." else "Today is the scheduled date for $vaccineName."
+                        Pair(t, b)
+                    }
+                    else -> {
+                        val daysLate = (currentDate.toEpochDays() - dueDate.toEpochDays()).toInt().coerceAtLeast(1)
+                        val daysStr = if (isPersian) daysLate.toString().toPersianDigits() else daysLate.toString()
+                        val t = if (isPersian) "تأخیر در واکسیناسیون (${profile.name})" else "Overdue Vaccine Alert (${profile.name})"
+                        val b = if (isPersian) "نوبت $vaccineName دارای $daysStr روز تأخیر است." else "$vaccineName is $daysLate days overdue."
+                        Pair(t, b)
+                    }
+                }
+
+                notifications.add(
+                    NotificationItem(
+                        id = "vaccine_${record.id}_day_$triggerDay",
+                        title = title,
+                        body = body,
+                        scheduledEpochMillis = scheduledEpoch,
+                        profileId = profile.id,
+                        channel = NotificationChannelType.HEALTH_REMINDERS,
+                        payloadRoute = "member/${profile.id}"
+                    )
+                )
+            }
+        }
+
+        // 2. Adult Health Checkups & Screenings
+        for (checkup in checkups) {
+            val profile = profileMap[checkup.profileId] ?: continue
+            val dueDate = checkup.nextDueDate
+            val def = ir.behpay.core.checkup.CheckupCatalog.findByKey(checkup.titleKey)
+            val checkupTitle = if (isPersian) (def?.nameFa ?: checkup.titleKey) else (def?.nameEn ?: checkup.titleKey)
+
+            val upcomingTriggers = mutableListOf<Int>()
+            if (preferences.notify7DaysBefore && dueDate.minusDays(7) >= currentDate) upcomingTriggers.add(7)
+            if (preferences.notify1DayBefore && dueDate.minusDays(1) >= currentDate) upcomingTriggers.add(1)
+            if (preferences.notifyOnDueDate && dueDate >= currentDate) upcomingTriggers.add(0)
+            if (preferences.notifyWhenOverdue && currentDate > dueDate) upcomingTriggers.add(-1)
+
+            for (triggerDay in upcomingTriggers) {
+                val notifyDate = when (triggerDay) {
+                    -1 -> currentDate // Remind today if overdue
+                    else -> dueDate.minusDays(triggerDay)
+                }
+                val scheduledEpoch = calculateScheduledTime(notifyDate, preferences.preferredHour, preferences.preferredMinute)
+
+                val (title, body) = when (triggerDay) {
+                    7 -> {
+                        val t = if (isPersian) "یادآور چک‌آپ سلامت (${profile.name})" else "Health Checkup Reminder (${profile.name})"
+                        val b = if (isPersian) "۷ روز تا موعد $checkupTitle باقی مانده است." else "7 days remaining until $checkupTitle."
+                        Pair(t, b)
+                    }
+                    1 -> {
+                        val t = if (isPersian) "یادآور چک‌آپ سلامت (${profile.name})" else "Health Checkup Reminder (${profile.name})"
+                        val b = if (isPersian) "فردا موعد $checkupTitle است." else "Tomorrow is due for $checkupTitle."
+                        Pair(t, b)
+                    }
+                    0 -> {
+                        val t = if (isPersian) "موعد چک‌آپ امروز (${profile.name})" else "Checkup Due Today (${profile.name})"
+                        val b = if (isPersian) "امروز موعد انجام $checkupTitle است. لطفاً نسبت به پیگیری اقدام فرمایید." else "Today is scheduled for $checkupTitle."
+                        Pair(t, b)
+                    }
+                    else -> {
+                        val daysLate = (currentDate.toEpochDays() - dueDate.toEpochDays()).toInt().coerceAtLeast(1)
+                        val daysStr = if (isPersian) daysLate.toString().toPersianDigits() else daysLate.toString()
+                        val t = if (isPersian) "تأخیر در چک‌آپ سلامت (${profile.name})" else "Overdue Checkup Alert (${profile.name})"
+                        val b = if (isPersian) "$checkupTitle دارای $daysStr روز تأخیر در پیگیری است." else "$checkupTitle is $daysLate days overdue."
+                        Pair(t, b)
+                    }
+                }
+
+                notifications.add(
+                    NotificationItem(
+                        id = "checkup_${checkup.id}_day_$triggerDay",
+                        title = title,
+                        body = body,
+                        scheduledEpochMillis = scheduledEpoch,
+                        profileId = profile.id,
+                        channel = NotificationChannelType.HEALTH_REMINDERS,
+                        payloadRoute = "member/${profile.id}"
+                    )
+                )
+            }
+        }
+
+        return notifications
+    }
+
     suspend fun sync(
         profiles: List<Profile>,
         pendingVaccines: List<VaccineRecord>,
@@ -148,7 +282,7 @@ class ReminderSyncEngine(
         scheduler.cancelAll()
         if (!preferences.enabled) return
 
-        val notifications = generateReminders(
+        val notifications = generateUpcomingSchedule(
             profiles = profiles,
             pendingVaccines = pendingVaccines,
             checkups = checkups,
