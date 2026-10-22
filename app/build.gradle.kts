@@ -34,6 +34,14 @@ val releaseKeyPassword = localProperties.getProperty("release.keyPassword")
     ?: System.getenv("RELEASE_KEY_PASSWORD")
     ?: ""
 
+val appVersionName = "1.0.0"
+val appVersionCode = 1
+val appName = "Behpay"
+
+base {
+    archivesName.set("$appName-v$appVersionName")
+}
+
 extensions.configure<ApplicationExtension> {
     namespace = "ir.behpay.app"
     compileSdk = 37
@@ -42,8 +50,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "ir.behpay.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
